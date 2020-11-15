@@ -1,0 +1,3 @@
+- Dodat operator za dekrementaciju
+- Omogućena upotreba i prefiksnih operatora za inc i dec
+- Omogućen poziv funkcija sa više parametara
