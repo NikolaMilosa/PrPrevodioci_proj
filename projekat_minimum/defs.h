@@ -30,7 +30,7 @@ enum kinds { NO_KIND = 0x1, REG = 0x2, LIT = 0x4,
              FUN = 0x8, VAR = 0x10, PAR = 0x20 };
 
 //konstante arithmetickih operatora
-enum arops { ADD, SUB, MUL, DIV, AROP_NUMBER, INC, DEC };
+enum arops { ADD, SUB, MUL, DIV, AROP_NUMBER, INC };
 
 //konstante relacionih operatora
 enum relops { LT, GT, LE, GE, EQ, NE, RELOP_NUMBER };

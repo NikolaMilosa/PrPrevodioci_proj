@@ -30,8 +30,8 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-#ifndef YY_YY_SYNTAX_TAB_H_INCLUDED
-# define YY_YY_SYNTAX_TAB_H_INCLUDED
+#ifndef YY_YY_SEMANTIC_TAB_H_INCLUDED
+# define YY_YY_SEMANTIC_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -65,7 +65,8 @@ extern int yydebug;
     _WHERE = 275,
     _COMMA = 276,
     _INC_OP = 277,
-    ONLY_IF = 278
+    _DEC_OP = 278,
+    ONLY_IF = 279
   };
 #endif
 
@@ -74,12 +75,12 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 23 "syntax.y" /* yacc.c:1909  */
+#line 27 "semantic.y" /* yacc.c:1909  */
 
   int i;
   char *s;
 
-#line 83 "syntax.tab.h" /* yacc.c:1909  */
+#line 84 "semantic.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -92,4 +93,4 @@ extern YYSTYPE yylval;
 
 int yyparse (void);
 
-#endif /* !YY_YY_SYNTAX_TAB_H_INCLUDED  */
+#endif /* !YY_YY_SEMANTIC_TAB_H_INCLUDED  */
