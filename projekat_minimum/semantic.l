@@ -17,6 +17,7 @@
 "select"             { return _SELECT; }
 "from"               { return _FROM; }
 "where"              { return _WHERE; }
+"void"               { yylval.i = VOID; return _TYPE; }
 
 ","                  { return _COMMA; }
 

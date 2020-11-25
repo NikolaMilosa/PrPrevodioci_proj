@@ -22,6 +22,8 @@
   int arg_count = 0;
 
   int brPar = 0;
+
+  int cur_fun_ret_t;
 %}
 
 %union{
@@ -75,6 +77,14 @@ function_list
 function
   : _TYPE _ID 
 	{
+	  if($1 == VOID)
+	    cur_fun_ret_t = VOID;
+	  if($1 == INT)
+	    cur_fun_ret_t = INT;
+          if($1 == UINT)
+	    cur_fun_ret_t = UINT;
+	  if($1 == NO_TYPE)
+	    err("function '%s' doesn't have a return type",$2);
 	  fun_idx = lookup_symbol($2, FUN);
 	  if(fun_idx == NO_INDEX)
 	    fun_idx = insert_symbol($2, FUN, $1, NO_ATR, NO_ATR);
@@ -94,6 +104,8 @@ parameter
   : /* empty */ { set_atr1(fun_idx, 0); }
   | _TYPE _ID
 	{
+	  if($1 == VOID)
+	   err("parameters and variables cannot be of VOID type");
 	  insert_symbol($2, PAR, $1, ++param_count, NO_ATR);
 	  temp_var = $1;
 	}
@@ -116,7 +128,12 @@ variable_list
   ;
 
 variable
-  : _TYPE { temp_var = $1; } var_poss _SEMICOLON
+  : _TYPE 
+	{
+	  if($1 == VOID)
+	   err("parameters and variables cannot be of VOID type"); 
+	  temp_var = $1; 
+	} var_poss _SEMICOLON
   ;
 
 var_poss 

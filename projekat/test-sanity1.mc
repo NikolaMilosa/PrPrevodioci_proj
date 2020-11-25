@@ -1,5 +1,6 @@
 //OPIS: Sanity check za miniC gramatiku
-
+void funk(int x){
+}
 int f(int x) {
     int y;
     return x + 2 - y;
