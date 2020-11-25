@@ -19,6 +19,7 @@
 
   int temp_var = NO_TYPE;
   int cur_fun_ret_t;
+  int cur_fun_returned;
 %}
 
 %union{
@@ -105,7 +106,14 @@ parameter
   ;
 
 body
-  : _LBRACKET variable_list statement_list _RBRACKET
+  : _LBRACKET { cur_fun_returned = 0; } 
+    variable_list statement_list 
+	{
+	  if(cur_fun_returned == 0){
+	    if(get_type(fun_idx) != VOID)
+              warn("Function '%s' expected a return value", get_name(fun_idx));
+	  }
+	}  _RBRACKET
   ;
 
 variable_list
@@ -278,8 +286,15 @@ rel_exp
 return_statement
   : _RETURN num_exp _SEMICOLON
 	{
+	  cur_fun_returned = 1;
 	  if(get_type(fun_idx) != get_type($2))
-	    err("Incompatible types in return");
+	    err("Incompatible types in return '%s'", get_name(fun_idx));
+	}
+  | _RETURN _SEMICOLON
+	{
+	  cur_fun_returned = 1;
+	  if(get_type(fun_idx) != VOID)
+	    warn("Function '%s' expected a return value", get_name(fun_idx));
 	}
   ;
 
