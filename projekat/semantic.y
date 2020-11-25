@@ -127,12 +127,33 @@ var_poss
           else
 	    err("redefinition of '%s'", $1);
 	} 
+  | _ID _ASSIGN literal
+	{
+	  if(lookup_symbol($1, VAR|PAR) == NO_INDEX){
+	   if(temp_var == get_type($3)) 
+	    insert_symbol($1, VAR, temp_var, ++var_num, NO_ATR);
+           else
+	    err("assigning values aren't of the same type");
+	 } else {
+	    err("redefinition of '%s'", $1);
+	 }
+	}
   | var_poss _COMMA _ID 
 	{
 	  if(lookup_symbol($3, VAR|PAR) == NO_INDEX)
 	    insert_symbol($3, VAR, temp_var, ++var_num, NO_ATR);
 	  else
 	    err("redefinition of '%s'", $3);
+	}
+  | var_poss _COMMA _ID _ASSIGN literal
+	{
+	  if(lookup_symbol($3, VAR|PAR) == NO_INDEX){
+	    if(temp_var == get_type($5))
+              insert_symbol($3, VAR, temp_var, ++var_num, NO_ATR);
+            else
+              err("assinging values aren't of the same type");
+	  } else 
+              err("redefinition of '%s'", $3);
 	}
   ;
 

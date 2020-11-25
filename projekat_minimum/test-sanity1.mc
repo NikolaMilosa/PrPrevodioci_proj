@@ -15,13 +15,13 @@ unsigned ff(unsigned x) {
 }
 
 int main() {
-    int a;
+    int a = 4,e = 3,f,g,h=2;
     int b;
     int aa;
     int bb;
     int c;
     int d;
-    unsigned u;
+    unsigned u = 2u, z = 3u,p,r,k=2u;
     unsigned w;
     unsigned uu;
     unsigned ww;
