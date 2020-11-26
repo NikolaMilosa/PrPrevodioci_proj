@@ -1,3 +1,4 @@
 - Dodat operator za dekrementaciju
 - Omogućena upotreba i prefiksnih operatora za inc i dec
-
+- Omugućena definicija i deklaracija promenljivih bilo gde u kodu
+- Dodatno uveden koncept lokalne promenljive za compound statemente

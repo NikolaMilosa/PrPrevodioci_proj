@@ -31,13 +31,17 @@ int main() {
 
     //poziv funkcije
     a = f(3);
-   
+    {
+	int blokProm = 2, blokProm2;
+        unsigned blokProm3 = 3u;
+    }
+
     //if iskaz sa else delom
     if (a < b)  //1
         a = 1;
     else
         a = -2;
-
+    int novaP;
     if (a + c == b + d - 4) //2
         a = 1;
     else
@@ -62,9 +66,12 @@ int main() {
     else
         d = aa+bb-c;
 
+    unsigned proba = 3u, josJednaP;
     //if iskaz bez else dela
     if (a < b)  //6
         a = 1;
+    if(a < c)
+       int probaUBloku;
 
     if (a + c == b - +4)    //7
         a = 1;

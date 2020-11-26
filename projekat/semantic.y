@@ -20,11 +20,12 @@
   int temp_var = NO_TYPE;
   int param_count = 0;
   int arg_count = 0;
-
   int brPar = 0;
 
-  int cur_fun_ret_t;
-  int cur_fun_returned;
+  int cur_fun_ret_t;    //Provera tipa
+  int cur_fun_returned; //Proverava da li je funk vratila
+
+  int local_var_help;   //Za kraj compound statement kako bi se dodatno definisao princip lokaliteta 
 %}
 
 %union{
@@ -121,7 +122,7 @@ parameter
 
 body
   : _LBRACKET { cur_fun_returned = 0; } 
-    variable_list statement_list 
+    statement_list 
 	{
 	  if(cur_fun_returned == 0){
 	    if(get_type(fun_idx) != VOID)
@@ -129,12 +130,12 @@ body
 	  }
 	}  _RBRACKET
   ;
-
+/*
 variable_list
-  : /* empty */
+  : 
   | variable_list variable
   ;
-
+*/
 variable
   : _TYPE 
 	{
@@ -189,6 +190,7 @@ statement_list
 
 statement
   : compound_statement
+  | variable
   | assignment_statement
   | if_statement
   | return_statement
@@ -217,7 +219,9 @@ inc_dec
   ;
 
 compound_statement
-  : _LBRACKET statement_list _RBRACKET
+  : _LBRACKET { local_var_help = get_last_element(); } 
+    statement_list { clear_symbols(local_var_help); }
+    _RBRACKET
   ;
 
 assignment_statement
