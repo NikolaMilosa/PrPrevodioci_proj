@@ -80,8 +80,8 @@ union YYSTYPE
 {
 #line 31 "semantic.y" /* yacc.c:1909  */
 
-  int i;
-  char *s;
+	int i;
+	char *s;
 
 #line 87 "semantic.tab.h" /* yacc.c:1909  */
 };

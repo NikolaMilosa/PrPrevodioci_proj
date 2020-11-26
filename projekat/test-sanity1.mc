@@ -32,7 +32,7 @@ int main() {
     //poziv funkcije
     a = f(3, 3u);
 
-    funk(3,3u,5u);
+	funk(3,3u,5u);
 
     int ad = a++;
     
@@ -55,6 +55,8 @@ int main() {
     }
     else {
         w = 2u;
+        int proba;
+        proba = f(2,3u);
     }
     if (a + c == b - d - -4) {  //4
         a = 1;
@@ -71,6 +73,7 @@ int main() {
     //if iskaz bez else dela
     if (a < b)  //6
         a = 1;
+    int proba;
 
     if (a + c == b - +4)    //7
         a = 1;

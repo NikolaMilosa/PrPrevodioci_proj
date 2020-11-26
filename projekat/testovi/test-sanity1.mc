@@ -34,7 +34,7 @@ int main() {
 
     funk(3,3u,5u);
 
-    int ad = 3;
+    int ad = a++;
     
     para(a = 3 : 3 : paso 2)
        para(w = 2u : 5u : paso 3u)
@@ -55,6 +55,8 @@ int main() {
     }
     else {
         w = 2u;
+        int proba;
+        proba = f(2,3u);
     }
     if (a + c == b - d - -4) {  //4
         a = 1;
@@ -71,6 +73,7 @@ int main() {
     //if iskaz bez else dela
     if (a < b)  //6
         a = 1;
+    int proba;
 
     if (a + c == b - +4)    //7
         a = 1;
