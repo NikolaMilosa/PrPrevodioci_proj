@@ -117,7 +117,7 @@ body
   ;
 
 variable_list
-  : /* empty */
+  : 
   | variable_list variable
   ;
 
