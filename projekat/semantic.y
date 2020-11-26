@@ -116,7 +116,7 @@ parameter
   | parameter _COMMA _TYPE _ID
 	{
 	  int idx = lookup_symbol($4, VAR|PAR);
-          if(idx == NO_INDEX)
+          if(idx < fun_idx)
             insert_symbol($4, PAR, $3, ++param_count, NO_ATR);
 	}
   ;
@@ -215,6 +215,15 @@ statement
   | select_statement
   | inc_statement
   | para_statement
+  | void_func
+  ;
+
+void_func
+  : function_call _SEMICOLON
+	{
+	  if(get_type(fcall_idx) != VOID)
+	    err("Function '%s' has a return value", get_name(fcall_idx));
+	}
   ;
 
 para_statement 
@@ -317,7 +326,6 @@ function_call
 	  fcall_idx = lookup_symbol($1, FUN);
 	  if(fcall_idx == NO_INDEX)
 	    err("'%s' is not a function", $1);
-	  brPar = get_atr1(fcall_idx);
 	}
     _LPAREN {arg_count = 0;} argument _RPAREN
 	{
@@ -341,7 +349,7 @@ argument
   | argument _COMMA num_exp
 	{
 	  arg_count++;
-	  if(get_atr2(fcall_idx + arg_count) != get_type($3))
+	  if(get_type(fcall_idx + arg_count) != get_type($3))
 	    err("Incompatible type of argument in '%s'", get_name(fcall_idx));
 	  $$ = arg_count;
 	}

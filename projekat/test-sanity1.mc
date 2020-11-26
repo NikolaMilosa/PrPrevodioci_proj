@@ -1,9 +1,9 @@
 //OPIS: Sanity check za miniC gramatiku
-void funk(int p){
+void funk(int p,unsigned k, unsigned pr){
     p = 3;
     return;
 }
-int f(int x) {
+int f(int x, unsigned k) {
     int y;
     return 5;
 }
@@ -30,7 +30,9 @@ int main() {
     unsigned ww;
 
     //poziv funkcije
-    a = f(3);
+    a = f(3, 3u);
+
+    funk(3,3u,5u);
     
     para(a = 3 : 3 : paso 2)
        para(w = 2u : 5u : paso 3u)
@@ -47,7 +49,7 @@ int main() {
 
     if (u == w) {   //3
         u = ff(1u);
-        a = f(11);
+        a = f(11, 3u);
     }
     else {
         w = 2u;
@@ -57,7 +59,7 @@ int main() {
     }
     else
         a = 2;
-    a = f(42);
+    a = f(32,33u);
 
     if (a + (aa-c) - d < b + (bb-a))    //5
         uu = w-u+uu;
