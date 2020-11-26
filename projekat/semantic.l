@@ -1,8 +1,8 @@
 %option noyywrap yylineno
 %{
-  #include <string.h>
-   #include "semantic.tab.h"
-   #include "defs.h"
+	#include <string.h>
+	#include "semantic.tab.h"
+	#include "defs.h"
 %}
 
 %%

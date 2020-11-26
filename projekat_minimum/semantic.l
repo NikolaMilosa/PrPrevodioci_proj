@@ -1,8 +1,8 @@
 %option noyywrap yylineno
 %{
-  #include <string.h>
-   #include "semantic.tab.h"
-   #include "defs.h"
+	#include <string.h>
+	#include "semantic.tab.h"
+	#include "defs.h"
 %}
 
 %%
@@ -48,6 +48,7 @@
 [0-9]{1,10}[uU]      { yylval.s = strdup(yytext); yylval.s[yyleng-1] = 0; return _UINT_NUMBER;}
 
 \/\/.*               { /* skip */ }
+"/*"[^*]*|[*]*"*/"   { /* skip */ }
 .                    { printf("line %d: LEXICAL ERROR on char %c\n", 
                               yylineno, *yytext);}
 %%
