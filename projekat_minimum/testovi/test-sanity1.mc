@@ -31,7 +31,9 @@ int main() {
 
     //poziv funkcije
     a = f(3);
-   
+    
+    para(a = 3 : 3 : paso 2)
+       para(w = 2u : 5u : paso 3u)
     //if iskaz sa else delom
     if (a < b)  //1
         a = 1;

@@ -65,7 +65,10 @@ extern int yydebug;
     _WHERE = 275,
     _COMMA = 276,
     _INC_OP = 277,
-    ONLY_IF = 278
+    _PARA = 278,
+    _PASO = 279,
+    _COLON = 280,
+    ONLY_IF = 281
   };
 #endif
 
@@ -79,7 +82,7 @@ union YYSTYPE
   int i;
   char *s;
 
-#line 83 "semantic.tab.h" /* yacc.c:1909  */
+#line 86 "semantic.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

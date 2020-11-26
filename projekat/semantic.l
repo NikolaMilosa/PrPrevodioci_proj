@@ -18,6 +18,9 @@
 "from"               { return _FROM; }
 "where"              { return _WHERE; }
 "void"               { yylval.i = VOID; return _TYPE; }
+"para"               { return _PARA; }
+"paso"               { return _PASO; }
+":"                  { return _COLON; }
 
 ","                  { return _COMMA; }
 

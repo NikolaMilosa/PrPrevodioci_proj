@@ -55,6 +55,10 @@
 %token _COMMA
 %token <i>_INC_OP
 %token <i> _DEC_OP
+%token _PARA
+%token _PASO
+%token _COLON
+
 
 %type <i> num_exp exp literal function_call argument rel_exp var_poss
 
@@ -196,6 +200,24 @@ statement
   | return_statement
   | select_statement
   | inc_statement
+  | para_statement
+  ;
+
+para_statement 
+  : _PARA _LPAREN _ID _ASSIGN literal _COLON literal _COLON _PASO literal _RPAREN statement
+	{
+	  int idx = lookup_symbol($3, VAR|PAR);
+          if(idx == NO_INDEX)
+	    err("undeclared '%s'", $3);
+          if(get_type(idx) != get_type($5) || get_type($7) != get_type($10))
+            err("in PASO exp, expression parameters aren't of the same type");
+          if(get_type(idx) != get_type($7))
+	    err("in PASO exp, expression parameters aren't of the same type");
+	  int lit1 = atoi(get_name($5));
+          int lit2 = atoi(get_name($7));
+          if(lit2 < lit1)
+            err("in PASO exp, parameter 1 must be less than parameter 2");
+	}
   ;
 
 inc_statement
