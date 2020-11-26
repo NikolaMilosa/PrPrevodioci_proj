@@ -33,6 +33,8 @@ int main() {
     a = f(3, 3u);
 
     funk(3,3u,5u);
+
+    int ad = 3;
     
     para(a = 3 : 3 : paso 2)
        para(w = 2u : 5u : paso 3u)

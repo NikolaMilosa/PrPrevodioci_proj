@@ -160,7 +160,7 @@ var_poss
 	  else
 	    err("redefinition of '%s'", $1);
 	} 
-  | _ID _ASSIGN literal
+  | _ID _ASSIGN num_exp
 	{
 	  if(lookup_symbol($1, VAR) == NO_INDEX){
 	   int idx_param_exists_check = lookup_symbol($1, PAR);
@@ -185,7 +185,7 @@ var_poss
 	  else
 	    err("redefinition of '%s'", $3);
 	}
-  | var_poss _COMMA _ID _ASSIGN literal
+  | var_poss _COMMA _ID _ASSIGN num_exp
 	{
 	  if(lookup_symbol($3, VAR) == NO_INDEX){
 	    int idx_param_exists_check = lookup_symbol($3, PAR);

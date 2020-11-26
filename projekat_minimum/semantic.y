@@ -18,6 +18,9 @@
   int fcall_idx = -1;
 
   int temp_var = NO_TYPE;
+  int param_count = 0;
+  int arg_count = 0;
+
   int cur_fun_ret_t;
   int cur_fun_returned;
 %}
@@ -89,9 +92,10 @@ function
 	  else
 	    err("redefinition of function '%s'", $2);
 	}
-	_LPAREN parameter _RPAREN body
+	_LPAREN {param_count = 0;} parameter _RPAREN body
 	{
-	  clear_symbols(fun_idx + 1);
+	  set_atr1(fun_idx, param_count);
+	  clear_symbols(fun_idx + param_count + 1);
 	  var_num = 0;
 	}
   ;
@@ -102,9 +106,13 @@ parameter
 	{
 	  if($1 == VOID)
 	   err("parameters and variables cannot be of VOID type");
-	  insert_symbol($2, PAR, $1, 1, NO_ATR);
-	  set_atr1(fun_idx, 1);
-	  set_atr2(fun_idx, $1);
+	  insert_symbol($2, PAR, $1, ++param_count, NO_ATR);
+	}
+  | parameter _COMMA _TYPE _ID
+	{
+	  int idx = lookup_symbol($4, VAR|PAR);
+          if(idx < fun_idx)
+            insert_symbol($4, PAR, $3, ++param_count, NO_ATR);
 	}
   ;
 
@@ -136,14 +144,23 @@ variable
 var_poss 
   : _ID
 	{
-	  if(lookup_symbol($1, VAR|PAR) == NO_INDEX)
-	    insert_symbol($1, VAR, temp_var, ++var_num, NO_ATR);
-          else
+	  
+	  if(lookup_symbol($1, VAR) == NO_INDEX){
+            int idx_param_exists_check = lookup_symbol($1, PAR);
+            if(idx_param_exists_check < fun_idx)
+	      insert_symbol($1, VAR, temp_var, ++var_num, NO_ATR);
+	    else
+	      err("redefinition of parameter '%s'", $1);
+	    }          
+	  else
 	    err("redefinition of '%s'", $1);
 	} 
-  | _ID _ASSIGN literal
+  | _ID _ASSIGN num_exp
 	{
-	  if(lookup_symbol($1, VAR|PAR) == NO_INDEX){
+	  if(lookup_symbol($1, VAR) == NO_INDEX){
+	   int idx_param_exists_check = lookup_symbol($1, PAR);
+           if(idx_param_exists_check > fun_idx) 
+	     err("redefinition of parameter '%s'", $1);
 	   if(temp_var == get_type($3)) 
 	    insert_symbol($1, VAR, temp_var, ++var_num, NO_ATR);
            else
@@ -154,14 +171,22 @@ var_poss
 	}
   | var_poss _COMMA _ID 
 	{
-	  if(lookup_symbol($3, VAR|PAR) == NO_INDEX)
+	  if(lookup_symbol($3, VAR) == NO_INDEX){
+	    int idx_param_exists_check = lookup_symbol($3, PAR);
+            if(idx_param_exists_check > fun_idx) 
+	      err("redefinition of parameter '%s'", $3);
 	    insert_symbol($3, VAR, temp_var, ++var_num, NO_ATR);
+	  }
 	  else
 	    err("redefinition of '%s'", $3);
 	}
-  | var_poss _COMMA _ID _ASSIGN literal
+  | var_poss _COMMA _ID _ASSIGN num_exp
 	{
-	  if(lookup_symbol($3, VAR|PAR) == NO_INDEX){
+	  if(lookup_symbol($3, VAR) == NO_INDEX){
+	    int idx_param_exists_check = lookup_symbol($3, PAR);
+            if(idx_param_exists_check > fun_idx) 
+	      err("redefinition of parameter '%s'", $3);
+
 	    if(temp_var == get_type($5))
               insert_symbol($3, VAR, temp_var, ++var_num, NO_ATR);
             else
@@ -184,6 +209,15 @@ statement
   | select_statement
   | inc_statement
   | para_statement
+  | void_func
+  ;
+
+void_func
+  : function_call _SEMICOLON
+	{
+	  if(get_type(fcall_idx) != VOID)
+	    err("Function '%s' has a return value", get_name(fcall_idx));
+	}
   ;
 
 para_statement 
@@ -268,9 +302,9 @@ function_call
 	  if(fcall_idx == NO_INDEX)
 	    err("'%s' is not a function", $1);
 	}
-    _LPAREN argument _RPAREN
+    _LPAREN {arg_count = 0;} argument _RPAREN
 	{
-	  if(get_atr1(fcall_idx) != $4)
+	  if(get_atr1(fcall_idx) != $5)
 	    err("Wrong number of args to function '%s'", get_name(fcall_idx));
 	  set_type(FUN_REG, get_type(fcall_idx));
 	  $$ = FUN_REG;
@@ -281,9 +315,18 @@ argument
   : /* empty */ { $$ = 0; }
   | num_exp
 	{
-	  if(get_atr2(fcall_idx) != get_type($1))
+	  arg_count++;
+	  if(get_type(fcall_idx + arg_count) != get_type($1))
 	    err("Incompatible type of argument in '%s'", get_name(fcall_idx));
-	  $$ = 1;
+	  
+	  $$ = arg_count;
+	}
+  | argument _COMMA num_exp
+	{
+	  arg_count++;
+	  if(get_type(fcall_idx + arg_count) != get_type($3))
+	    err("Incompatible type of argument in '%s'", get_name(fcall_idx));
+	  $$ = arg_count;
 	}
   ;
 

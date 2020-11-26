@@ -28,9 +28,9 @@ Grammar
    14 variable: _TYPE $@5 var_poss _SEMICOLON
 
    15 var_poss: _ID
-   16         | _ID _ASSIGN literal
+   16         | _ID _ASSIGN num_exp
    17         | var_poss _COMMA _ID
-   18         | var_poss _COMMA _ID _ASSIGN literal
+   18         | var_poss _COMMA _ID _ASSIGN num_exp
 
    19 statement_list: %empty
    20               | statement_list statement
@@ -182,11 +182,11 @@ $@7 (49)
 assignment_statement (50)
     on left: 39, on right: 23
 num_exp (51)
-    on left: 40 41, on right: 39 41 45 54 55 59 60
+    on left: 40 41, on right: 16 18 39 41 45 54 55 59 60
 exp (52)
     on left: 42 43 44 45 46 47, on right: 40 41
 literal (53)
-    on left: 48 49, on right: 16 18 31 42
+    on left: 48 49, on right: 31 42
 function_call (54)
     on left: 52, on right: 30 44
 $@8 (55)
@@ -843,7 +843,7 @@ State 67
 State 68
 
    15 var_poss: _ID .
-   16         | _ID . _ASSIGN literal
+   16         | _ID . _ASSIGN num_exp
 
     _ASSIGN  shift, and go to state 86
 
@@ -854,7 +854,7 @@ State 69
 
    14 variable: _TYPE $@5 var_poss . _SEMICOLON
    17 var_poss: var_poss . _COMMA _ID
-   18         | var_poss . _COMMA _ID _ASSIGN literal
+   18         | var_poss . _COMMA _ID _ASSIGN num_exp
 
     _SEMICOLON  shift, and go to state 87
     _COMMA      shift, and go to state 88
@@ -1018,12 +1018,20 @@ State 85
 
 State 86
 
-   16 var_poss: _ID _ASSIGN . literal
+   16 var_poss: _ID _ASSIGN . num_exp
 
+    _ID           shift, and go to state 47
     _INT_NUMBER   shift, and go to state 48
     _UINT_NUMBER  shift, and go to state 49
+    _LPAREN       shift, and go to state 50
+    _INC_OP       shift, and go to state 28
+    _DEC_OP       shift, and go to state 29
 
-    literal  go to state 99
+    inc_dec        go to state 52
+    num_exp        go to state 99
+    exp            go to state 54
+    literal        go to state 55
+    function_call  go to state 56
 
 
 State 87
@@ -1036,7 +1044,7 @@ State 87
 State 88
 
    17 var_poss: var_poss _COMMA . _ID
-   18         | var_poss _COMMA . _ID _ASSIGN literal
+   18         | var_poss _COMMA . _ID _ASSIGN num_exp
 
     _ID  shift, and go to state 100
 
@@ -1163,7 +1171,10 @@ State 98
 
 State 99
 
-   16 var_poss: _ID _ASSIGN literal .
+   16 var_poss: _ID _ASSIGN num_exp .
+   41 num_exp: num_exp . _AROP exp
+
+    _AROP  shift, and go to state 76
 
     $default  reduce using rule 16 (var_poss)
 
@@ -1171,7 +1182,7 @@ State 99
 State 100
 
    17 var_poss: var_poss _COMMA _ID .
-   18         | var_poss _COMMA _ID . _ASSIGN literal
+   18         | var_poss _COMMA _ID . _ASSIGN num_exp
 
     _ASSIGN  shift, and go to state 108
 
@@ -1237,12 +1248,20 @@ State 107
 
 State 108
 
-   18 var_poss: var_poss _COMMA _ID _ASSIGN . literal
+   18 var_poss: var_poss _COMMA _ID _ASSIGN . num_exp
 
+    _ID           shift, and go to state 47
     _INT_NUMBER   shift, and go to state 48
     _UINT_NUMBER  shift, and go to state 49
+    _LPAREN       shift, and go to state 50
+    _INC_OP       shift, and go to state 28
+    _DEC_OP       shift, and go to state 29
 
-    literal  go to state 113
+    inc_dec        go to state 52
+    num_exp        go to state 113
+    exp            go to state 54
+    literal        go to state 55
+    function_call  go to state 56
 
 
 State 109
@@ -1301,7 +1320,10 @@ State 112
 
 State 113
 
-   18 var_poss: var_poss _COMMA _ID _ASSIGN literal .
+   18 var_poss: var_poss _COMMA _ID _ASSIGN num_exp .
+   41 num_exp: num_exp . _AROP exp
+
+    _AROP  shift, and go to state 76
 
     $default  reduce using rule 18 (var_poss)
 
