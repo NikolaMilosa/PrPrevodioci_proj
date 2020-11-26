@@ -1,5 +1,5 @@
 //OPIS: Sanity check za miniC gramatiku
-void funk(int p,unsigned d){
+void funk(int p,unsigned u){
     p = 3;
     return;
 }

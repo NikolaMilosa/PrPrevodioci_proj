@@ -120,13 +120,18 @@ parameter
 	{
 		if($1 == VOID)
 			err("parameters and variables cannot be of VOID type");
-		insert_symbol($2, PAR, $1, ++param_count, NO_ATR);
+		++param_count;
+		insert_symbol($2, PAR, $1, NO_ATR, NO_ATR);
 	}
   | parameter _COMMA _TYPE _ID
 	{
 		int idx = lookup_symbol($4, VAR|PAR);
-		if(idx < fun_idx)
-			insert_symbol($4, PAR, $3, ++param_count, NO_ATR);
+		if(idx < fun_idx){
+			++param_count;
+			insert_symbol($4, PAR, $3, NO_ATR, NO_ATR);
+		}
+		else
+			err("parameter '%s' already declared", $4);
 	}
   ;
 

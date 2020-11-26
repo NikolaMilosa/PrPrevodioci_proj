@@ -53,6 +53,7 @@ int main() {
     }
     else {
         w = 2u;
+        int proba;
     }
     if (a + c == b - d - -4) {  //4
         a = 1;
@@ -75,6 +76,7 @@ int main() {
         
     //check exp check :
     
+    int proba;
     
     check [b] {
     	when 3 ->
