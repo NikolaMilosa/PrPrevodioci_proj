@@ -72,5 +72,35 @@ int main() {
 
     if (a + c == b - +4)    //7
         a = 1;
+        
+    //check exp check :
+    
+    
+    check [a] {
+    	when 1 -> 
+    		a = a + 5;
+    		finish;
+    	when 5 ->
+    		{
+    			b = 3;
+    		}
+    		finish;
+    	when 2 -> 
+    		b = 2;
+    	when 3 ->
+    		b = 3;
+    	otherwise ->
+    		a = a + b;
+    }
+    
+    check [b] {
+    	when 3 ->
+    		a = 3 + b;
+    		finish;
+    	when 5 -> 
+    		b = 2;
+    }
+    
+    
 }
 

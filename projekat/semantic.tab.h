@@ -69,7 +69,14 @@ extern int yydebug;
     _PARA = 279,
     _PASO = 280,
     _COLON = 281,
-    ONLY_IF = 282
+    _CHECK = 282,
+    _WHEN = 283,
+    _FINISH = 284,
+    _LSBRAC = 285,
+    _RSBRAC = 286,
+    _ARROW = 287,
+    _OTHERWISE = 288,
+    ONLY_IF = 289
   };
 #endif
 
@@ -78,12 +85,12 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 31 "semantic.y" /* yacc.c:1909  */
+#line 33 "semantic.y" /* yacc.c:1909  */
 
 	int i;
 	char *s;
 
-#line 87 "semantic.tab.h" /* yacc.c:1909  */
+#line 94 "semantic.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

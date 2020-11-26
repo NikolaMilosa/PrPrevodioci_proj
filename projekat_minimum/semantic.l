@@ -21,6 +21,14 @@
 "para"               { return _PARA; }
 "paso"               { return _PASO; }
 ":"                  { return _COLON; }
+"check"              { return _CHECK; }
+"when"               { return _WHEN; }
+"finish"             { return _FINISH; }
+"otherwise"          { return _OTHERWISE; }
+
+"["                  { return _LSBRAC; }
+"]"                  { return _RSBRAC; }
+"->"                 { return _ARROW; }
 
 
 ","                  { return _COMMA; }

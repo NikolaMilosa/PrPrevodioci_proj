@@ -1,9 +1,9 @@
 //OPIS: Sanity check za miniC gramatiku
-void funk(int p,unsigned k, unsigned pr){
+void funk(int p,unsigned d){
     p = 3;
     return;
 }
-int f(int x, unsigned k) {
+int f(int x) {
     int y;
     return 5;
 }
@@ -12,30 +12,28 @@ unsigned f2() {
     return 2u;
 }
 
-unsigned ff(unsigned x) {
+unsigned ff(unsigned x,int k) {
     unsigned y;
     return x + f2() - y;
 }
 
 int main() {
-    int a = 4,e = 3,f,g,h=2;
+    int a = 4,e = f(3),f,g,h=2;
     int b;
     int aa;
     int bb;
     int c;
     int d;
-    unsigned u = 2u, z = 3u,p,r,k=2u;
+    unsigned u = 2u, z = ff(2u,3),p,r,k=2u;
     unsigned w;
     unsigned uu;
     unsigned ww;
 
     //poziv funkcije
-    a = f(3, 3u);
-
-    funk(3,3u,5u);
-
-    int ad = a++;
+    a = f(3);
     
+    funk(3,3u);
+
     para(a = 3 : 3 : paso 2)
        para(w = 2u : 5u : paso 3u)
     //if iskaz sa else delom
@@ -50,20 +48,18 @@ int main() {
         a = 2;
 
     if (u == w) {   //3
-        u = ff(1u);
-        a = f(11, 3u);
+        u = ff(1u,3);
+        a = f(11);
     }
     else {
         w = 2u;
-        int proba;
-        proba = f(2,3u);
     }
     if (a + c == b - d - -4) {  //4
         a = 1;
     }
     else
         a = 2;
-    a = f(32,33u);
+    a = f(42);
 
     if (a + (aa-c) - d < b + (bb-a))    //5
         uu = w-u+uu;
@@ -73,9 +69,34 @@ int main() {
     //if iskaz bez else dela
     if (a < b)  //6
         a = 1;
-    int proba;
 
     if (a + c == b - +4)    //7
         a = 1;
+        
+    //check exp check :
+    
+    
+    check [b] {
+    	when 3 ->
+    		a = 3 + b;
+    		finish;
+    	when 5 -> 
+    		b = 2;
+    }
+    
+    check [a] {
+    	when 3 -> 
+    		a = 4;
+    		finish;
+    	when 4 ->
+    		{
+    		b = 5;
+    		}
+    		finish;
+    	otherwise ->
+    		a = 3;
+    }
+    int nova;
+    
 }
 

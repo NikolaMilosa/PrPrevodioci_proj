@@ -23,6 +23,8 @@
 
 	int cur_fun_ret_t;     //Povratni tip funkcije
 	int cur_fun_returned;  //Proverava da li je funkcija vratila vrednost
+	
+	int lit_last_in_mem;   //Vraca najmanji indeks literala koji se nalazio u listi simbola
 %}
 
 %union{
@@ -54,6 +56,13 @@
 %token _PARA
 %token _PASO
 %token _COLON
+%token _CHECK
+%token _WHEN
+%token _FINISH
+%token _LSBRAC
+%token _RSBRAC
+%token _ARROW
+%token _OTHERWISE
 
 %type <i> num_exp exp literal function_call argument rel_exp var_poss
 
@@ -209,7 +218,67 @@ statement
   | inc_statement
   | para_statement
   | void_func
+  | check_exp
   ;
+
+check_exp
+  : _CHECK _LSBRAC _ID 
+	{
+		int brParF = get_atr1(fun_idx);
+		int i = fun_idx + 1;
+		int foundInPar = 1;
+		for(i; i < fun_idx + brParF; i++)
+			if(get_name(i) == $3){
+				foundInPar = 0;
+				temp_var = get_type(i);
+			}
+		if(foundInPar == 1){
+			int idx = lookup_symbol($3, VAR);
+			if(idx == NO_INDEX)
+				err("undeclared '%s'", $3);
+			else
+				temp_var = get_type(idx);
+		}							
+	}
+    _RSBRAC _LBRACKET { lit_last_in_mem = get_last_element(); } whenPart otherwise _RBRACKET
+    {
+    	int i = lit_last_in_mem;
+    	for(i; i <= get_last_element(); i++)
+    		if(get_kind(i) == LIT)
+    			if(get_atr2(i) == 1)
+    				set_atr2(i,0);
+    }
+  ;
+
+otherwise
+  : 
+  | _OTHERWISE _ARROW statement
+  ;
+  
+whenPart
+  : when finish_par
+  | whenPart when finish_par
+  ;
+  
+finish_par
+  :
+  |  _FINISH _SEMICOLON
+  ;
+    
+when
+  : _WHEN literal _ARROW statement
+  	{
+  		if(get_type($2) != temp_var)
+  			err("check exp and const exp aren't the same type");
+  	
+  		if($2 < lit_last_in_mem)
+  			lit_last_in_mem = $2;
+  		if(get_atr2($2) == 1)
+  			err("all constants in check statement must be unique");
+  		else
+  			set_atr2($2,1); 
+  	}
+  ; 
 
 void_func
   : function_call _SEMICOLON
