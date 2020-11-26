@@ -158,6 +158,7 @@ variable
 var_poss 
   : _ID
 	{
+	  
 		if(lookup_symbol($1, VAR) == NO_INDEX){
 			int idx_param_exists_check = lookup_symbol($1, PAR);
 			if(idx_param_exists_check < fun_idx)

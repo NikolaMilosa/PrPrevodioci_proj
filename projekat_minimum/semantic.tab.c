@@ -488,13 +488,13 @@ static const yytype_uint8 yytranslate[] =
 static const yytype_uint16 yyrline[] =
 {
        0,    75,    75,    83,    84,    89,   104,    88,   113,   114,
-     121,   134,   136,   134,   144,   146,   151,   150,   159,   171,
-     185,   196,   212,   214,   218,   219,   220,   221,   222,   223,
-     224,   225,   226,   231,   248,   230,   258,   260,   264,   265,
-     268,   270,   274,   289,   297,   314,   323,   327,   339,   340,
-     348,   349,   355,   356,   358,   367,   368,   373,   378,   372,
-     388,   389,   397,   407,   408,   412,   416,   424,   430,   439,
-     443,   444
+     121,   134,   136,   134,   144,   146,   151,   150,   159,   172,
+     186,   197,   213,   215,   219,   220,   221,   222,   223,   224,
+     225,   226,   227,   232,   249,   231,   259,   261,   265,   266,
+     269,   271,   275,   290,   298,   315,   324,   328,   340,   341,
+     349,   350,   356,   357,   359,   368,   369,   374,   379,   373,
+     389,   390,   398,   408,   409,   413,   417,   425,   431,   440,
+     444,   445
 };
 #endif
 
@@ -1467,6 +1467,7 @@ yyreduce:
   case 18:
 #line 160 "semantic.y" /* yacc.c:1646  */
     {
+	  
 		if(lookup_symbol((yyvsp[0].s), VAR) == NO_INDEX){
 			int idx_param_exists_check = lookup_symbol((yyvsp[0].s), PAR);
 			if(idx_param_exists_check < fun_idx)
@@ -1477,11 +1478,11 @@ yyreduce:
 		else
 			err("redefinition of '%s'", (yyvsp[0].s));
 	}
-#line 1481 "semantic.tab.c" /* yacc.c:1646  */
+#line 1482 "semantic.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 172 "semantic.y" /* yacc.c:1646  */
+#line 173 "semantic.y" /* yacc.c:1646  */
     {
 		if(lookup_symbol((yyvsp[-2].s), VAR) == NO_INDEX){
 		int idx_param_exists_check = lookup_symbol((yyvsp[-2].s), PAR);
@@ -1495,11 +1496,11 @@ yyreduce:
 			err("redefinition of '%s'", (yyvsp[-2].s));
 		}
 	}
-#line 1499 "semantic.tab.c" /* yacc.c:1646  */
+#line 1500 "semantic.tab.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 186 "semantic.y" /* yacc.c:1646  */
+#line 187 "semantic.y" /* yacc.c:1646  */
     {
 		if(lookup_symbol((yyvsp[0].s), VAR) == NO_INDEX){
 			int idx_param_exists_check = lookup_symbol((yyvsp[0].s), PAR);
@@ -1510,11 +1511,11 @@ yyreduce:
 		else
 			err("redefinition of '%s'", (yyvsp[0].s));
 	}
-#line 1514 "semantic.tab.c" /* yacc.c:1646  */
+#line 1515 "semantic.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 197 "semantic.y" /* yacc.c:1646  */
+#line 198 "semantic.y" /* yacc.c:1646  */
     {
 		if(lookup_symbol((yyvsp[-2].s), VAR) == NO_INDEX){
 			int idx_param_exists_check = lookup_symbol((yyvsp[-2].s), PAR);
@@ -1528,11 +1529,11 @@ yyreduce:
 		} else 
 			err("redefinition of '%s'", (yyvsp[-2].s));
 	}
-#line 1532 "semantic.tab.c" /* yacc.c:1646  */
+#line 1533 "semantic.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 231 "semantic.y" /* yacc.c:1646  */
+#line 232 "semantic.y" /* yacc.c:1646  */
     {
 		int brParF = get_atr1(fun_idx);
 		int i = fun_idx + 1;
@@ -1550,17 +1551,17 @@ yyreduce:
 				temp_var = get_type(idx);
 		}							
 	}
-#line 1554 "semantic.tab.c" /* yacc.c:1646  */
+#line 1555 "semantic.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 248 "semantic.y" /* yacc.c:1646  */
+#line 249 "semantic.y" /* yacc.c:1646  */
     { lit_last_in_mem = get_last_element(); }
-#line 1560 "semantic.tab.c" /* yacc.c:1646  */
+#line 1561 "semantic.tab.c" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 249 "semantic.y" /* yacc.c:1646  */
+#line 250 "semantic.y" /* yacc.c:1646  */
     {
     	int i = lit_last_in_mem;
     	for(i; i <= get_last_element(); i++)
@@ -1568,11 +1569,11 @@ yyreduce:
     			if(get_atr2(i) == 1)
     				set_atr2(i,0);
     }
-#line 1572 "semantic.tab.c" /* yacc.c:1646  */
+#line 1573 "semantic.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 275 "semantic.y" /* yacc.c:1646  */
+#line 276 "semantic.y" /* yacc.c:1646  */
     {
   		if(get_type((yyvsp[-2].i)) != temp_var)
   			err("check exp and const exp aren't the same type");
@@ -1584,20 +1585,20 @@ yyreduce:
   		else
   			set_atr2((yyvsp[-2].i),1); 
   	}
-#line 1588 "semantic.tab.c" /* yacc.c:1646  */
+#line 1589 "semantic.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 290 "semantic.y" /* yacc.c:1646  */
+#line 291 "semantic.y" /* yacc.c:1646  */
     {
 		if(get_type(fcall_idx) != VOID)
 			err("Function '%s' has a return value", get_name(fcall_idx));
 	}
-#line 1597 "semantic.tab.c" /* yacc.c:1646  */
+#line 1598 "semantic.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 298 "semantic.y" /* yacc.c:1646  */
+#line 299 "semantic.y" /* yacc.c:1646  */
     {
 		int idx = lookup_symbol((yyvsp[-9].s), VAR|PAR);
 		if(idx == NO_INDEX)
@@ -1611,21 +1612,21 @@ yyreduce:
 		if(lit2 < lit1)
 			err("in PASO exp, parameter 1 must be less than parameter 2");
 	}
-#line 1615 "semantic.tab.c" /* yacc.c:1646  */
+#line 1616 "semantic.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 315 "semantic.y" /* yacc.c:1646  */
+#line 316 "semantic.y" /* yacc.c:1646  */
     {
 		int idx = lookup_symbol((yyvsp[-2].s), VAR|PAR);
 		if(idx == NO_INDEX)
 			err("undeclared '%s'", (yyvsp[-2].s));
 	}
-#line 1625 "semantic.tab.c" /* yacc.c:1646  */
+#line 1626 "semantic.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 328 "semantic.y" /* yacc.c:1646  */
+#line 329 "semantic.y" /* yacc.c:1646  */
     {
 		int idx = lookup_symbol((yyvsp[-3].s), VAR|PAR);
 		if(idx == NO_INDEX)
@@ -1634,91 +1635,91 @@ yyreduce:
 			if(get_type(idx) != get_type((yyvsp[-1].i)))
 				err("incompatible types in assignment");
 	}
-#line 1638 "semantic.tab.c" /* yacc.c:1646  */
+#line 1639 "semantic.tab.c" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 341 "semantic.y" /* yacc.c:1646  */
+#line 342 "semantic.y" /* yacc.c:1646  */
     {
 		if(get_type((yyvsp[-2].i)) != get_type((yyvsp[0].i)))
 			err("invalid operands : arithmetic operation");
 	}
-#line 1647 "semantic.tab.c" /* yacc.c:1646  */
+#line 1648 "semantic.tab.c" /* yacc.c:1646  */
     break;
 
   case 51:
-#line 350 "semantic.y" /* yacc.c:1646  */
+#line 351 "semantic.y" /* yacc.c:1646  */
     {
 		(yyval.i) = lookup_symbol((yyvsp[0].s), VAR|PAR);
 		if((yyval.i) == NO_INDEX)
 			err("'%s' undeclared", (yyvsp[0].s)); 
 	}
-#line 1657 "semantic.tab.c" /* yacc.c:1646  */
+#line 1658 "semantic.tab.c" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 357 "semantic.y" /* yacc.c:1646  */
+#line 358 "semantic.y" /* yacc.c:1646  */
     { (yyval.i) = (yyvsp[-1].i); }
-#line 1663 "semantic.tab.c" /* yacc.c:1646  */
+#line 1664 "semantic.tab.c" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 359 "semantic.y" /* yacc.c:1646  */
+#line 360 "semantic.y" /* yacc.c:1646  */
     {
 		(yyval.i) = lookup_symbol((yyvsp[-1].s), VAR|PAR);
 		if((yyval.i) == NO_INDEX)
 			err("'%s' undeclared", (yyvsp[-1].s));
 	}
-#line 1673 "semantic.tab.c" /* yacc.c:1646  */
+#line 1674 "semantic.tab.c" /* yacc.c:1646  */
     break;
 
   case 55:
-#line 367 "semantic.y" /* yacc.c:1646  */
+#line 368 "semantic.y" /* yacc.c:1646  */
     { (yyval.i) = insert_literal((yyvsp[0].s), INT); }
-#line 1679 "semantic.tab.c" /* yacc.c:1646  */
+#line 1680 "semantic.tab.c" /* yacc.c:1646  */
     break;
 
   case 56:
-#line 368 "semantic.y" /* yacc.c:1646  */
+#line 369 "semantic.y" /* yacc.c:1646  */
     { (yyval.i) = insert_literal((yyvsp[0].s), UINT); }
-#line 1685 "semantic.tab.c" /* yacc.c:1646  */
+#line 1686 "semantic.tab.c" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 373 "semantic.y" /* yacc.c:1646  */
+#line 374 "semantic.y" /* yacc.c:1646  */
     {
 		fcall_idx = lookup_symbol((yyvsp[0].s), FUN);
 		if(fcall_idx == NO_INDEX)
 			err("'%s' is not a function", (yyvsp[0].s));
 	}
-#line 1695 "semantic.tab.c" /* yacc.c:1646  */
+#line 1696 "semantic.tab.c" /* yacc.c:1646  */
     break;
 
   case 58:
-#line 378 "semantic.y" /* yacc.c:1646  */
+#line 379 "semantic.y" /* yacc.c:1646  */
     {arg_count = 0;}
-#line 1701 "semantic.tab.c" /* yacc.c:1646  */
+#line 1702 "semantic.tab.c" /* yacc.c:1646  */
     break;
 
   case 59:
-#line 379 "semantic.y" /* yacc.c:1646  */
+#line 380 "semantic.y" /* yacc.c:1646  */
     {
 		if(get_atr1(fcall_idx) != (yyvsp[-1].i))
 			err("Wrong number of args to function '%s'", get_name(fcall_idx));
 		set_type(FUN_REG, get_type(fcall_idx));
 		(yyval.i) = FUN_REG;
 	}
-#line 1712 "semantic.tab.c" /* yacc.c:1646  */
+#line 1713 "semantic.tab.c" /* yacc.c:1646  */
     break;
 
   case 60:
-#line 388 "semantic.y" /* yacc.c:1646  */
+#line 389 "semantic.y" /* yacc.c:1646  */
     { (yyval.i) = 0; }
-#line 1718 "semantic.tab.c" /* yacc.c:1646  */
+#line 1719 "semantic.tab.c" /* yacc.c:1646  */
     break;
 
   case 61:
-#line 390 "semantic.y" /* yacc.c:1646  */
+#line 391 "semantic.y" /* yacc.c:1646  */
     {
 		arg_count++;
 		if(get_type(fcall_idx + arg_count) != get_type((yyvsp[0].i)))
@@ -1726,51 +1727,51 @@ yyreduce:
 	  
 		(yyval.i) = arg_count;
 	}
-#line 1730 "semantic.tab.c" /* yacc.c:1646  */
+#line 1731 "semantic.tab.c" /* yacc.c:1646  */
     break;
 
   case 62:
-#line 398 "semantic.y" /* yacc.c:1646  */
+#line 399 "semantic.y" /* yacc.c:1646  */
     {
 		arg_count++;
 		if(get_type(fcall_idx + arg_count) != get_type((yyvsp[0].i)))
 			err("Incompatible type of argument in '%s'", get_name(fcall_idx));
 		(yyval.i) = arg_count;
 	}
-#line 1741 "semantic.tab.c" /* yacc.c:1646  */
+#line 1742 "semantic.tab.c" /* yacc.c:1646  */
     break;
 
   case 66:
-#line 417 "semantic.y" /* yacc.c:1646  */
+#line 418 "semantic.y" /* yacc.c:1646  */
     {
 		if(get_type((yyvsp[-2].i)) != get_type((yyvsp[0].i)))
 			err("invalid operands : relational operator");
 	}
-#line 1750 "semantic.tab.c" /* yacc.c:1646  */
+#line 1751 "semantic.tab.c" /* yacc.c:1646  */
     break;
 
   case 67:
-#line 425 "semantic.y" /* yacc.c:1646  */
+#line 426 "semantic.y" /* yacc.c:1646  */
     {
 		cur_fun_returned = 1;
 		if(get_type(fun_idx) != get_type((yyvsp[-1].i)))
 			err("Incompatible types in return '%s'", get_name(fun_idx));
 	}
-#line 1760 "semantic.tab.c" /* yacc.c:1646  */
+#line 1761 "semantic.tab.c" /* yacc.c:1646  */
     break;
 
   case 68:
-#line 431 "semantic.y" /* yacc.c:1646  */
+#line 432 "semantic.y" /* yacc.c:1646  */
     {
 		cur_fun_returned = 1;
 		if(get_type(fun_idx) != VOID)
 			warn("Function '%s' expected a return value", get_name(fun_idx));
 	}
-#line 1770 "semantic.tab.c" /* yacc.c:1646  */
+#line 1771 "semantic.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1774 "semantic.tab.c" /* yacc.c:1646  */
+#line 1775 "semantic.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1998,7 +1999,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 447 "semantic.y" /* yacc.c:1906  */
+#line 448 "semantic.y" /* yacc.c:1906  */
 
 
 int yyerror(char *s) {
