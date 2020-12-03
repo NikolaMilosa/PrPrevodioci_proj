@@ -14,7 +14,7 @@
 "if"                 { return _IF; }
 "else"               { return _ELSE; }
 "return"             { return _RETURN; }
-"select"             { return _SELECT; }
+"select"             { return _SELECT; }                  //Ostalo od nadograđivanja sa vezbi
 "from"               { return _FROM; }
 "where"              { return _WHERE; }
 "void"               { yylval.i = VOID; return _TYPE; }

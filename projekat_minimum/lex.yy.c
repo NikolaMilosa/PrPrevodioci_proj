@@ -903,7 +903,7 @@ YY_RULE_SETUP
 case 7:
 YY_RULE_SETUP
 #line 17 "semantic.l"
-{ return _SELECT; }
+{ return _SELECT; }                  //Ostalo od nadograđivanja sa vezbi
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
