@@ -75,6 +75,14 @@ int main() {
         
     //check exp check :
     
+    if(a == 2)
+    	return 1; 
+    	
+   	if(c > b)
+   		b = c;
+   	else
+   		return 0;
+    
     
     check [a] {
     	when 1 -> 
