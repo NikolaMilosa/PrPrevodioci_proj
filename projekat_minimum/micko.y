@@ -31,7 +31,8 @@
 	
 	int lit_last_in_mem;   //Vraca najmanji indeks literala koji se nalazio u listi simbola
 	
-	int glob_helper = -1;
+	int lab_para_num = -1;
+	int lab_check_num = -1;
 %}
 
 %union{
@@ -154,7 +155,7 @@ body
     	if(var_num)
 	  		code("\n\t\tSUBS\t%%15,$%d,%%15", 4*var_num);
 	  		
-	  	code("\n@%s_bodz:", get_name(fun_idx));
+	  	code("\n@%s_body:", get_name(fun_idx));
     } statement_list 
 	{
 		if(cur_fun_returned == 0){
@@ -206,6 +207,8 @@ var_poss
 		} else {
 			err("redefinition of '%s'", $1);
 		}
+		
+		gen_mov($3,$$);
 	}
   | var_poss _COMMA _ID 
 	{
@@ -231,6 +234,8 @@ var_poss
 			err("assinging values aren't of the same type");
 		} else 
 			err("redefinition of '%s'", $3);
+			
+		gen_mov($5, $$);
 	}
   ;
 
@@ -319,19 +324,45 @@ void_func
   ;
 
 para_statement 
-  : _PARA _LPAREN _ID _ASSIGN literal _COLON literal _COLON _PASO literal _RPAREN statement
+  : _PARA _LPAREN {$<i>$ = ++lab_para_num;} _ID _ASSIGN literal _COLON literal _COLON _PASO literal _RPAREN 
 	{
-		int idx = lookup_symbol($3, VAR|PAR);
+		int idx = lookup_symbol($4, VAR|PAR);
 		if(idx == NO_INDEX)
-			err("undeclared '%s'", $3);
-		if(get_type(idx) != get_type($5) || get_type($7) != get_type($10))
+			err("undeclared '%s'", $4);
+		if(get_type(idx) != get_type($6) || get_type($8) != get_type($11))
 			err("in PASO exp, expression parameters aren't of the same type");
-		if(get_type(idx) != get_type($7))
+		if(get_type(idx) != get_type($8))
 			err("in PASO exp, expression parameters aren't of the same type");
-		int lit1 = atoi(get_name($5));
-		int lit2 = atoi(get_name($7));
+		int lit1 = atoi(get_name($6));
+		int lit2 = atoi(get_name($8));
 		if(lit2 < lit1)
 			err("in PASO exp, parameter 1 must be less than parameter 2");
+			
+		gen_mov($6,idx);
+		code("\n@para%d_begin:", $<i>3);
+		gen_cmp(idx,$8);
+		
+		int t = get_type(idx);
+		if(t == INT)
+			code("\n\t\tJGES\t@para%d_end", $<i>3);
+		else
+			code("\n\t\tJGEU\t@para%d_end", $<i>3);
+			
+		if(t == INT)
+			code("\n\t\tADDS\t");
+		else
+			code("\n\t\tADDU\t");
+			
+		gen_sym_name(idx);
+		code(",");
+		gen_sym_name($11);
+		code(",");
+		gen_sym_name(idx);
+		
+	} statement
+	{
+		code("\n\t\tJMP\t@para%d_begin", $<i>3);
+		code("\n@para%d_end:", $<i>3);
 	}
   ;
 
@@ -473,9 +504,9 @@ function_call
 		if(get_atr1(fcall_idx) != $5)
 			err("Wrong number of args to function '%s'", get_name(fcall_idx));
 			
-		code("\n\t\t\tCALL\t%s", get_name(fcall_idx));
+		code("\n\t\tCALL\t%s", get_name(fcall_idx));
 		if($5 > 0)
-			code("\n\t\t\tADDS\t%%15,$%d,%%15", $5 * 4);	
+			code("\n\t\tADDS\t%%15,$%d,%%15", $5 * 4);	
 		
 		set_type(FUN_REG, get_type(fcall_idx));
 		$$ = FUN_REG;
@@ -491,7 +522,7 @@ argument
 			err("Incompatible type of argument in '%s'", get_name(fcall_idx));
 			
 		free_if_reg($1);
-		code("\n\t\t\tPUSH\t");
+		code("\n\t\tPUSH\t");
 		gen_sym_name($1);
 	  
 		$$ = arg_count;
@@ -503,7 +534,7 @@ argument
 			err("Incompatible type of argument in '%s'", get_name(fcall_idx));
 			
 		free_if_reg($1);
-		code("\n\t\t\tPUSH\t");
+		code("\n\t\tPUSH\t");
 		gen_sym_name($1);	
 		
 		$$ = arg_count;
