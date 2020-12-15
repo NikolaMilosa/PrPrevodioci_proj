@@ -80,11 +80,20 @@
 %%
 
 program
-  : function_list
+  : gvariable_list function_list
 	{
 		if(lookup_symbol("main", FUN) == NO_INDEX)
 			err("undefined reference to 'main'");
 	}
+  ;
+  
+gvariable_list
+  :
+  | gvariable_list variable
+  	{
+  		set_kind($2, GVAR);
+  		code("\n%s:\n\t\tWORD\t%d", get_name($2), 1);
+  	}
   ;
 
 function_list
