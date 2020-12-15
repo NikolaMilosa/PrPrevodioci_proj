@@ -3,12 +3,17 @@
 	#include <stdlib.h>
 	#include "defs.h"
 	#include "symtab.h"
+	#include "codegen.h"
 
 	int yyparse(void);
 	int yylex(void);
 	int yyerror(char *s);
 	void warning(char *s);
 	extern int yylineno;
+
+	int out_lin = 0;
+	int lab_num = -1;
+	FILE *output;
 
 	char char_buffer[CHAR_BUFFER_LENGTH];
 	int error_count = 0;
@@ -25,6 +30,8 @@
 	int cur_fun_returned;  //Proverava da li je funkcija vratila vrednost
 	
 	int lit_last_in_mem;   //Vraca najmanji indeks literala koji se nalazio u listi simbola
+	
+	int glob_helper = -1;
 %}
 
 %union{
@@ -64,7 +71,8 @@
 %token _ARROW
 %token _OTHERWISE
 
-%type <i> num_exp exp literal function_call argument rel_exp var_poss
+%type <i> num_exp exp literal function_call argument rel_exp var_poss if_part
+%type <i> variable
 
 %nonassoc ONLY_IF
 %nonassoc _ELSE
@@ -100,12 +108,21 @@ function
 			fun_idx = insert_symbol($2, FUN, $1, NO_ATR, NO_ATR);
 		else
 			err("redefinition of function '%s'", $2);
+			
+		code("\n%s:", $2);
+		code("\n\t\tPUSH\t%%14");
+		code("\n\t\tMOV \t%%15,%%14");
 	}
 	_LPAREN {param_count = 0;} parameter _RPAREN body
 	{
 		set_atr1(fun_idx, param_count);
 		clear_symbols(fun_idx + param_count + 1);
 		var_num = 0;
+		
+		code("\n@%s_exit:", $2);
+		code("\n\t\tMOV \t%%14,%%15");
+		code("\n\t\tPOP \t%%14");
+		code("\n\t\tRET");
 	}
   ;
 
@@ -131,8 +148,14 @@ parameter
   ;
 
 body
-  : _LBRACKET { cur_fun_returned = 0; } 
-    variable_list statement_list 
+  : _LBRACKET { cur_fun_returned = 0;} 
+    variable_list
+    {
+    	if(var_num)
+	  		code("\n\t\tSUBS\t%%15,$%d,%%15", 4*var_num);
+	  		
+	  	code("\n@%s_bodz:", get_name(fun_idx));
+    } statement_list 
 	{
 		if(cur_fun_returned == 0){
 			if(get_type(fun_idx) != VOID)
@@ -153,6 +176,7 @@ variable
 			err("parameters and variables cannot be of VOID type"); 
 		temp_var = $1; 
 	} var_poss _SEMICOLON
+	{$$ = $3;}
   ;
 
 var_poss 
@@ -162,7 +186,7 @@ var_poss
 		if(lookup_symbol($1, VAR) == NO_INDEX){
 			int idx_param_exists_check = lookup_symbol($1, PAR);
 			if(idx_param_exists_check < fun_idx)
-				insert_symbol($1, VAR, temp_var, ++var_num, NO_ATR);
+				$$ = insert_symbol($1, VAR, temp_var, ++var_num, NO_ATR);
 			else
 				err("redefinition of parameter '%s'", $1);
 		}          
@@ -176,7 +200,7 @@ var_poss
 		if(idx_param_exists_check > fun_idx) 
 			err("redefinition of parameter '%s'", $1);
 		if(temp_var == get_type($3)) 
-			insert_symbol($1, VAR, temp_var, ++var_num, NO_ATR);
+			$$ = insert_symbol($1, VAR, temp_var, ++var_num, NO_ATR);
 		else
 			err("assigning values aren't of the same type");
 		} else {
@@ -189,7 +213,7 @@ var_poss
 			int idx_param_exists_check = lookup_symbol($3, PAR);
 			if(idx_param_exists_check > fun_idx) 
 				err("redefinition of parameter '%s'", $3);
-			insert_symbol($3, VAR, temp_var, ++var_num, NO_ATR);
+			$$ = insert_symbol($3, VAR, temp_var, ++var_num, NO_ATR);
 		}
 		else
 			err("redefinition of '%s'", $3);
@@ -202,7 +226,7 @@ var_poss
 				err("redefinition of parameter '%s'", $3);
 
 		if(temp_var == get_type($5))
-			insert_symbol($3, VAR, temp_var, ++var_num, NO_ATR);
+			$$ = insert_symbol($3, VAR, temp_var, ++var_num, NO_ATR);
 		else
 			err("assinging values aren't of the same type");
 		} else 
@@ -317,6 +341,29 @@ inc_statement
 		int idx = lookup_symbol($1, VAR|PAR);
 		if(idx == NO_INDEX)
 			err("undeclared '%s'", $1);
+			
+		int t1 = get_type(idx);
+		int k1 = get_kind(idx);
+		if(t1 == INT)
+			if(k1 == GVAR)
+				code("\n\t\tADDS\t%s,$1,%s", get_name(idx), get_name(idx));
+			else{
+				code("\n\t\tADDS\t");
+				gen_sym_name(idx);
+				code(",$1,");
+				gen_sym_name(idx);
+				free_if_reg(idx);
+			}
+		else
+			if(k1 == GVAR)
+				code("\n\t\tADDU\t%s,$1,%s", get_name(idx), get_name(idx));
+			else{
+				code("\n\t\tADDU\t");
+				gen_sym_name(idx);
+				code(",$1,");
+				gen_sym_name(idx);
+				free_if_reg(idx);
+			}
 	}
   ;
 
@@ -333,6 +380,8 @@ assignment_statement
 		else
 			if(get_type(idx) != get_type($3))
 				err("incompatible types in assignment");
+				
+		gen_mov($3, idx);
 	}
   ;
 
@@ -342,6 +391,18 @@ num_exp
 	{
 		if(get_type($1) != get_type($3))
 			err("invalid operands : arithmetic operation");
+			
+		int t1 = get_type($1);
+		code("\n\t\t%s\t", ar_instructions[$2 + (t1 - 1) * AROP_NUMBER]);
+		gen_sym_name($1);
+		code(",");
+		gen_sym_name($3);
+		code(",");
+		free_if_reg($3);
+		free_if_reg($1);
+		$$ = take_reg();
+		gen_sym_name($$);
+		set_type($$, t1);
 	}
   ;
 
@@ -349,18 +410,49 @@ exp
   : literal
   | _ID
 	{
-		$$ = lookup_symbol($1, VAR|PAR);
+		$$ = lookup_symbol($1, VAR|PAR|GVAR);
 		if($$ == NO_INDEX)
 			err("'%s' undeclared", $1); 
 	}
   | function_call
+  	{
+  		$$ = take_reg();
+  		gen_mov(FUN_REG, $$);
+  	}
   | _LPAREN num_exp _RPAREN
 	{ $$ = $2; }
   | _ID _INC_OP
 	{
-		$$ = lookup_symbol($1, VAR|PAR);
+		$$ = lookup_symbol($1, VAR|PAR|GVAR);
 		if($$ == NO_INDEX)
 			err("'%s' undeclared", $1);
+			
+		int idx  = lookup_symbol($1, VAR|PAR|GVAR);
+		$$ = take_reg();
+		set_type($$, get_type(idx));
+		
+		gen_mov(idx, $$);
+		
+		int t1 = get_type(idx);
+  		int k1 = get_kind(idx);	
+  		if(t1 == INT)
+  			if(k1 == GVAR)	
+  				code("\n\t\tADDS\t%s, $1, %s\t", get_name(idx), get_name(idx));
+  			else{
+	  			code("\n\t\tADDS\t");
+	  			gen_sym_name(idx);
+	  			code(", $1, ");
+	  			gen_sym_name(idx);
+  			}  				
+  		else
+  			if(k1 == GVAR)
+  				code("\n\t\tADDU\t%s, $1, %s\t", get_name(idx), get_name(idx));
+  			else{
+  				code("\n\t\tADDS\t");
+	  			gen_sym_name(idx);
+	  			code(", $1, ");
+	  			gen_sym_name(idx);
+	  		}
 	}
   ;
 
@@ -380,6 +472,11 @@ function_call
 	{
 		if(get_atr1(fcall_idx) != $5)
 			err("Wrong number of args to function '%s'", get_name(fcall_idx));
+			
+		code("\n\t\t\tCALL\t%s", get_name(fcall_idx));
+		if($5 > 0)
+			code("\n\t\t\tADDS\t%%15,$%d,%%15", $5 * 4);	
+		
 		set_type(FUN_REG, get_type(fcall_idx));
 		$$ = FUN_REG;
 	}
@@ -392,6 +489,10 @@ argument
 		arg_count++;
 		if(get_type(fcall_idx + arg_count) != get_type($1))
 			err("Incompatible type of argument in '%s'", get_name(fcall_idx));
+			
+		free_if_reg($1);
+		code("\n\t\t\tPUSH\t");
+		gen_sym_name($1);
 	  
 		$$ = arg_count;
 	}
@@ -400,17 +501,37 @@ argument
 		arg_count++;
 		if(get_type(fcall_idx + arg_count) != get_type($3))
 			err("Incompatible type of argument in '%s'", get_name(fcall_idx));
+			
+		free_if_reg($1);
+		code("\n\t\t\tPUSH\t");
+		gen_sym_name($1);	
+		
 		$$ = arg_count;
 	}
   ;
 
 if_statement
   : if_part %prec ONLY_IF
+  	{ code("\n@exit%d:", $1);}
   | if_part _ELSE statement
+  	{ code("\n@exit%d:", $1);}
   ;
 
 if_part
-  : _IF _LPAREN rel_exp _RPAREN statement
+  : _IF _LPAREN
+  {
+  	$<i>$ = ++lab_num;
+  	code("\n@if%d:", lab_num);
+  } rel_exp 
+  {
+  	code("\n\t\t%s\t@false%d", opp_jumps[$4], $<i>3);
+  	code("\n@true%d:", $<i>3);
+  }_RPAREN statement
+  {
+  	code("\n\t\tJMP \t@exit%d", $<i>3);
+  	code("\n@false%d:", $<i>3);
+  	$$ = $<i>3;
+  }
   ;
 
 rel_exp
@@ -418,6 +539,9 @@ rel_exp
 	{
 		if(get_type($1) != get_type($3))
 			err("invalid operands : relational operator");
+			
+		$$ = $2 + ((get_type($1) - 1)*RELOP_NUMBER);
+		gen_cmp($1,$3);
 	}
   ;
 
@@ -427,6 +551,9 @@ return_statement
 		cur_fun_returned = 1;
 		if(get_type(fun_idx) != get_type($2))
 			err("Incompatible types in return '%s'", get_name(fun_idx));
+			
+		gen_mov($2,FUN_REG);
+		code("\n\t\tJMP \t@%s_exit",get_name(fun_idx));
 	}
   | _RETURN _SEMICOLON
 	{
@@ -460,18 +587,26 @@ void warning(char *s){
 int main() {
 	int synerr;
 	init_symtab();
+	output = fopen("output.asm", "w+");
 
 	synerr = yyparse();
 
 	clear_symtab();
+	fclose(output);
 
 	if(warning_count)
 		printf("\n%d warning(s).\n", warning_count);
-	if(error_count)
+	if(error_count){
+		remove("output.asm");
 		printf("\n%d error(s).\n", error_count);
+	}
 
 	if(synerr)
-		return -1;
+		return -1;                  //syntax error
+	else if(error_count)
+		return error_count & 127;   //semantic errors
+	else if(warning_count)
+	return (warning_count & 127) + 127;  //warnings
 	else
-		return error_count;
+		return 0; //ok
 }

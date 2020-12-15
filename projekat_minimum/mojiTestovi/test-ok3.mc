@@ -1,7 +1,10 @@
 //Testiranje postinkrementnog operatora
+//RETURN: 4
 int main(){
 	int a,b,c;
 	unsigned d,e,f;
+	
+	a = 2;
 	
 	a++;			//Moguća upotreba kao statement
 	d++;
@@ -10,7 +13,7 @@ int main(){
 	d = f + e++;
 	
 	if(a < b++)
-		a = 4;
+		a = 10;
 
-	return 0;
+	return a;
 }

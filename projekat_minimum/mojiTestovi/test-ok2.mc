@@ -1,4 +1,5 @@
 //Deklaracija više promenljivih
+//RETURN: 0
 int func(int a){
 	int b,c,d;
 	unsigned e,f,g;

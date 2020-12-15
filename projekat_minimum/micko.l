@@ -1,8 +1,9 @@
 %option noyywrap yylineno
 %{
 	#include <string.h>
-	#include "semantic.tab.h"
+	#include "micko.tab.h"
 	#include "defs.h"
+	extern YYSTYPE yylval;
 %}
 
 %%

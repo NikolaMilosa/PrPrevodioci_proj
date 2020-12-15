@@ -1,4 +1,5 @@
 //Testiranje parsera 
+//RETURN: 6
 int func(int a){
 	a = 5;
 	return a;
@@ -37,4 +38,5 @@ int main(){
 	 /* Testiranje
 	 višelinijskih 
 	 komentara */
+	 return a + b;
 }	 
