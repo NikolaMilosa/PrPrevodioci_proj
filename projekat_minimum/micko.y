@@ -1,6 +1,7 @@
 %{
 	#include <stdio.h>
 	#include <stdlib.h>
+	#include <string.h>
 	#include "defs.h"
 	#include "symtab.h"
 	#include "codegen.h"
@@ -14,7 +15,7 @@
 	int out_lin = 0;
 	int lab_num = -1;
 	FILE *output;
-
+	
 	char char_buffer[CHAR_BUFFER_LENGTH];
 	int error_count = 0;
 	int warning_count = 0;
@@ -30,6 +31,11 @@
 	int cur_fun_returned;  //Proverava da li je funkcija vratila vrednost
 	
 	int lit_last_in_mem;   //Vraca najmanji indeks literala koji se nalazio u listi simbola
+	int check_num = -1;
+	int when_num = 0;
+	int check_count = 0;
+	int compared_idx = 0;
+	int currently_in_check = 0;
 	
 	int lab_para_num = -1;
 	int lab_check_num = -1;
@@ -114,9 +120,9 @@ function
 		code("\n\t\tPUSH\t%%14");
 		code("\n\t\tMOV \t%%15,%%14");
 	}
-	_LPAREN {param_count = 0;} parameter _RPAREN body
+	_LPAREN {param_count = 0;} parameter {set_atr1(fun_idx, param_count);} _RPAREN body
 	{
-		set_atr1(fun_idx, param_count);
+		
 		clear_symbols(fun_idx + param_count + 1);
 		var_num = 0;
 		
@@ -262,18 +268,30 @@ check_exp
 		int brParF = get_atr1(fun_idx);
 		int i = fun_idx + 1;
 		int foundInPar = 1;
-		for(i; i < fun_idx + brParF; i++)
-			if(get_name(i) == $3){
+		int idx;
+		
+		for(i; i <= fun_idx + brParF; i++){
+			if(strcmp(get_name(i),$3) == 0){
 				foundInPar = 0;
 				temp_var = get_type(i);
+				idx = i;
 			}
+		}
 		if(foundInPar == 1){
-			int idx = lookup_symbol($3, VAR);
+			idx = lookup_symbol($3, VAR);
 			if(idx == NO_INDEX)
 				err("undeclared '%s'", $3);
 			else
 				temp_var = get_type(idx);
-		}							
+		}
+		
+		compared_idx = idx;	
+		check_num++;
+		when_num = 0;
+		if(currently_in_check == 0){
+			check_count++;
+			currently_in_check++;
+		}					
 	}
     _RSBRAC _LBRACKET { lit_last_in_mem = get_last_element(); } whenPart otherwise _RBRACKET
     {
@@ -282,12 +300,28 @@ check_exp
     		if(get_kind(i) == LIT)
     			if(get_atr2(i) == 1)
     				set_atr2(i,0);
+    				
+    	check_num--;
+    	if(currently_in_check != 0)
+    		currently_in_check--;    	
     }
   ;
 
 otherwise
-  : 
-  | _OTHERWISE _ARROW statement
+  : {
+  		code("\n@%dcheck%d_when%d:",check_count,check_num,when_num);
+  		code("\n@%dcheck%d_when%d_body:",check_count,check_num,when_num);
+  		code("\n@%dcheck%d_end:",check_count,check_num);
+  	}
+  | _OTHERWISE 
+  	{
+  		code("\n@%dcheck%d_when%d:",check_count,check_num,when_num);
+  		code("\n@%dcheck%d_when%d_body:",check_count,check_num,when_num);
+  	}
+  	_ARROW statement
+  	{
+  		code("\n@%dcheck%d_end:",check_count,check_num);
+  	}
   ;
   
 whenPart
@@ -297,11 +331,25 @@ whenPart
   
 finish_par
   :
+  	{
+  		code("\n\t\tJMP\t@%dcheck%d_when%d_body",check_count,check_num,when_num);
+  	}
   |  _FINISH _SEMICOLON
+  	{
+  		code("\n\t\tJMP\t@%dcheck%d_end",check_count, check_num);
+  	}
   ;
     
 when
-  : _WHEN literal _ARROW statement
+  : _WHEN literal
+  	{
+  		code("\n@%dcheck%d_when%d:",check_count,check_num,when_num);
+  		gen_cmp(compared_idx,$2);
+  		when_num++;
+  		code("\n\t\tJNE\t@%dcheck%d_when%d",check_count,check_num,when_num);
+  		code("\n@%dcheck%d_when%d_body:", check_count,check_num,when_num-1);
+  		
+  	} _ARROW statement
   	{
   		if(get_type($2) != temp_var)
   			err("check exp and const exp aren't the same type");
@@ -521,9 +569,10 @@ argument
 		if(get_type(fcall_idx + arg_count) != get_type($1))
 			err("Incompatible type of argument in '%s'", get_name(fcall_idx));
 			
-		free_if_reg($1);
+		
 		code("\n\t\tPUSH\t");
 		gen_sym_name($1);
+		free_if_reg($1);
 	  
 		$$ = arg_count;
 	}
@@ -533,9 +582,10 @@ argument
 		if(get_type(fcall_idx + arg_count) != get_type($3))
 			err("Incompatible type of argument in '%s'", get_name(fcall_idx));
 			
-		free_if_reg($1);
+		
 		code("\n\t\tPUSH\t");
 		gen_sym_name($1);	
+		free_if_reg($3);
 		
 		$$ = arg_count;
 	}
