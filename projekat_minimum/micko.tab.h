@@ -75,7 +75,8 @@ extern int yydebug;
     _RSBRAC = 285,
     _ARROW = 286,
     _OTHERWISE = 287,
-    ONLY_IF = 288
+    _QMARK = 288,
+    ONLY_IF = 289
   };
 #endif
 
@@ -89,7 +90,7 @@ union YYSTYPE
 	int i;
 	char *s;
 
-#line 93 "micko.tab.h" /* yacc.c:1909  */
+#line 94 "micko.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

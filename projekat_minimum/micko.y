@@ -40,7 +40,7 @@
 	int lab_para_num = -1;
 	int lab_check_num = -1;
 	
-	int gtemp_var = 0;
+	int lab_usl_num = -1;
 %}
 
 %union{
@@ -79,6 +79,7 @@
 %token _RSBRAC
 %token _ARROW
 %token _OTHERWISE
+%token _QMARK
 
 %type <i> num_exp exp literal function_call argument var_poss rel_exp if_part 
 %type <i> variable g_var_poss
@@ -119,7 +120,7 @@ g_var_poss
 	{
 		int idx = lookup_symbol($1, GVAR);
 		if(idx == NO_INDEX)
-			idx = insert_symbol($1, GVAR, gtemp_var, NO_ATR, NO_ATR);
+			idx = insert_symbol($1, GVAR, 0, NO_ATR, NO_ATR);
 		else
 			err("redefinition of variable '%s'", $1);
 		$$ = idx;
@@ -131,41 +132,13 @@ g_var_poss
   	{
   		int idx = lookup_symbol($3, GVAR);
   		if(idx == NO_INDEX)
-  			idx = insert_symbol($3, GVAR, gtemp_var, NO_ATR, NO_ATR);
+  			idx = insert_symbol($3, GVAR, 0, NO_ATR, NO_ATR);
   		else
   			err("redefinition of variable '%s'", $3);
   			
   		code("\n%s:",$3);
   		code("\n\t\tWORD\t1");
   	}
-/*
-  | _ID _ASSIGN num_exp
-  	{
-  		int idx = lookup_symbol($1, GVAR);
-  		if(idx == NO_INDEX)
-  			idx = insert_symbol($1, GVAR, gtemp_var, NO_ATR, NO_ATR);
-  		else
-  			err("redefinition of variable '%s'", $1);
-  		
-  		if(get_type(idx) != get_type($3))
-  			err("assigning values aren't of the same type");
-  			
-  		$$ = idx;
-  		
-  		
-  	}	
-  | g_var_poss _COMMA _ID _ASSIGN num_exp
-  	{
-  		int idx = lookup_symbol($3, GVAR);
-  		if(idx == NO_INDEX)
-  			idx = insert_symbol($3, GVAR, gtemp_var, NO_ATR, NO_ATR);
-  		else
-  			err("redefinition of variable '%s'", $3);
-  			
-  		if(get_type(idx) != get_type($5))
-  			err("assigning values aren't of the same type");
-  	}
-*/
   ;
 
 function_list
@@ -611,6 +584,30 @@ exp
 	  		gen_sym_name(idx);
 	  	}
 	}
+  | _LPAREN exp _RELOP exp _RPAREN _QMARK exp _COLON exp
+  	{
+  		$$ = take_reg();
+  		set_type($$,get_type($7));
+  		
+  		if(get_type($2) != get_type($4))
+  			err("compared expressions aren't of the same type");
+  		if(get_type($7) != get_type($9))
+  			err("assigning expressions aren't of the same type");
+  			
+  		code("\n@usl_izr_begin%d:", ++lab_usl_num);
+  		gen_cmp($2,$4);
+  		
+  		int help = $3 + (get_type($2) - 1)*RELOP_NUMBER;
+  		code("\n\t\t%s\t@usl_izr_true%d",jumps[help], lab_usl_num);
+  		code("\n@usl_izr_false%d:", lab_usl_num);
+  		
+  		gen_mov($9,$$);
+  		code("\n\t\tJMP\t@usl_izr_end%d",lab_usl_num);
+  		
+  		code("\n@usl_izr_true%d:",lab_usl_num);
+  		gen_mov($7,$$);
+  		code("\n@usl_izr_end%d:", lab_usl_num);
+  	}	
   ;
 
 literal
