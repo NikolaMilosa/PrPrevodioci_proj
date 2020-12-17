@@ -39,6 +39,8 @@
 	
 	int lab_para_num = -1;
 	int lab_check_num = -1;
+	
+	int gtemp_var = 0;
 %}
 
 %union{
@@ -78,8 +80,8 @@
 %token _ARROW
 %token _OTHERWISE
 
-%type <i> num_exp exp literal function_call argument rel_exp var_poss if_part
-%type <i> variable
+%type <i> num_exp exp literal function_call argument var_poss rel_exp if_part 
+%type <i> variable g_var_poss
 
 %nonassoc ONLY_IF
 %nonassoc _ELSE
@@ -87,11 +89,83 @@
 %%
 
 program
-  : function_list
+  : glob_vars function_list
 	{
 		if(lookup_symbol("main", FUN) == NO_INDEX)
 			err("undefined reference to 'main'");
 	}
+  ;
+
+glob_vars
+  :
+  | glob_vars g_variable
+  ;
+  
+g_variable
+  : _TYPE g_var_poss _SEMICOLON
+  	{
+  		if($1 == VOID)
+  			err("variables cannot be of 'void' type");
+  			
+  		int i = $2;
+  		for(i; i <= get_last_element(); i++)
+  			set_type(i,$1);
+  	}
+  ;
+  
+  
+g_var_poss
+  :  _ID
+	{
+		int idx = lookup_symbol($1, GVAR);
+		if(idx == NO_INDEX)
+			idx = insert_symbol($1, GVAR, gtemp_var, NO_ATR, NO_ATR);
+		else
+			err("redefinition of variable '%s'", $1);
+		$$ = idx;
+		
+		code("\n%s:",$1);
+		code("\n\t\tWORD\t1");
+	}
+  | g_var_poss _COMMA _ID
+  	{
+  		int idx = lookup_symbol($3, GVAR);
+  		if(idx == NO_INDEX)
+  			idx = insert_symbol($3, GVAR, gtemp_var, NO_ATR, NO_ATR);
+  		else
+  			err("redefinition of variable '%s'", $3);
+  			
+  		code("\n%s:",$3);
+  		code("\n\t\tWORD\t1");
+  	}
+/*
+  | _ID _ASSIGN num_exp
+  	{
+  		int idx = lookup_symbol($1, GVAR);
+  		if(idx == NO_INDEX)
+  			idx = insert_symbol($1, GVAR, gtemp_var, NO_ATR, NO_ATR);
+  		else
+  			err("redefinition of variable '%s'", $1);
+  		
+  		if(get_type(idx) != get_type($3))
+  			err("assigning values aren't of the same type");
+  			
+  		$$ = idx;
+  		
+  		
+  	}	
+  | g_var_poss _COMMA _ID _ASSIGN num_exp
+  	{
+  		int idx = lookup_symbol($3, GVAR);
+  		if(idx == NO_INDEX)
+  			idx = insert_symbol($3, GVAR, gtemp_var, NO_ATR, NO_ATR);
+  		else
+  			err("redefinition of variable '%s'", $3);
+  			
+  		if(get_type(idx) != get_type($5))
+  			err("assigning values aren't of the same type");
+  	}
+*/
   ;
 
 function_list
@@ -183,7 +257,6 @@ variable
 			err("parameters and variables cannot be of VOID type"); 
 		temp_var = $1; 
 	} var_poss _SEMICOLON
-	{$$ = $3;}
   ;
 
 var_poss 
@@ -195,15 +268,15 @@ var_poss
 			if(idx_param_exists_check < fun_idx)
 				$$ = insert_symbol($1, VAR, temp_var, ++var_num, NO_ATR);
 			else
-				err("redefinition of parameter '%s'", $1);
+				err("redefinition of variable '%s'", $1);
 		}          
 		else
-			err("redefinition of '%s'", $1);
+			err("redefinition of variable '%s'", $1);
 	} 
   | _ID _ASSIGN num_exp
 	{
 		if(lookup_symbol($1, VAR) == NO_INDEX){
-		int idx_param_exists_check = lookup_symbol($1, PAR);
+			int idx_param_exists_check = lookup_symbol($1, PAR);
 		if(idx_param_exists_check > fun_idx) 
 			err("redefinition of parameter '%s'", $1);
 		if(temp_var == get_type($3)) 
@@ -211,7 +284,7 @@ var_poss
 		else
 			err("assigning values aren't of the same type");
 		} else {
-			err("redefinition of '%s'", $1);
+			err("redefinition of variable '%s'", $1);
 		}
 		
 		gen_mov($3,$$);
@@ -244,7 +317,6 @@ var_poss
 		gen_mov($5, $$);
 	}
   ;
-
 statement_list
   : /* empty */
   | statement_list statement
@@ -278,7 +350,7 @@ check_exp
 			}
 		}
 		if(foundInPar == 1){
-			idx = lookup_symbol($3, VAR);
+			idx = lookup_symbol($3, VAR|GVAR);
 			if(idx == NO_INDEX)
 				err("undeclared '%s'", $3);
 			else
@@ -373,10 +445,15 @@ void_func
 
 para_statement 
   : _PARA _LPAREN {$<i>$ = ++lab_para_num;} _ID _ASSIGN literal _COLON literal _COLON _PASO literal _RPAREN 
-	{
+	{	
 		int idx = lookup_symbol($4, VAR|PAR);
-		if(idx == NO_INDEX)
-			err("undeclared '%s'", $4);
+		if(idx == NO_INDEX || idx < fun_idx){
+			idx = lookup_symbol($4, GVAR);
+			if(idx == NO_INDEX)
+				err("undeclared '%s'", $4);
+		}
+			
+			
 		if(get_type(idx) != get_type($6) || get_type($8) != get_type($11))
 			err("in PASO exp, expression parameters aren't of the same type");
 		if(get_type(idx) != get_type($8))
@@ -418,31 +495,28 @@ inc_statement
   : _ID _INC_OP _SEMICOLON
 	{
 		int idx = lookup_symbol($1, VAR|PAR);
-		if(idx == NO_INDEX)
-			err("undeclared '%s'", $1);
+		if(idx == NO_INDEX || idx < fun_idx){
+			idx = lookup_symbol($1, GVAR);
+			if(idx == NO_INDEX)
+				err("undeclared '%s'", $1);
+		}
+			
 			
 		int t1 = get_type(idx);
-		int k1 = get_kind(idx);
-		if(t1 == INT)
-			if(k1 == GVAR)
-				code("\n\t\tADDS\t%s,$1,%s", get_name(idx), get_name(idx));
-			else{
-				code("\n\t\tADDS\t");
-				gen_sym_name(idx);
-				code(",$1,");
-				gen_sym_name(idx);
-				free_if_reg(idx);
-			}
-		else
-			if(k1 == GVAR)
-				code("\n\t\tADDU\t%s,$1,%s", get_name(idx), get_name(idx));
-			else{
-				code("\n\t\tADDU\t");
-				gen_sym_name(idx);
-				code(",$1,");
-				gen_sym_name(idx);
-				free_if_reg(idx);
-			}
+		if(t1 == INT){
+			code("\n\t\tADDS\t");
+			gen_sym_name(idx);
+			code(",$1,");
+			gen_sym_name(idx);
+			free_if_reg(idx);
+		}
+		else{
+			code("\n\t\tADDU\t");
+			gen_sym_name(idx);
+			code(",$1,");
+			gen_sym_name(idx);
+			free_if_reg(idx);
+		}
 	}
   ;
 
@@ -454,8 +528,14 @@ assignment_statement
   : _ID _ASSIGN num_exp _SEMICOLON
 	{
 		int idx = lookup_symbol($1, VAR|PAR);
-		if(idx == NO_INDEX)
-			err("invalid lvalue '%s' in assignment", $1);
+		if(idx == NO_INDEX || idx < fun_idx){
+			idx = lookup_symbol($1, GVAR);
+			if(idx == NO_INDEX)
+				err("invalid lvalue '%s' in assignment", $1);
+				
+			if(get_type(idx) != get_type($3))
+				err("incompatible types in assignment");
+		}
 		else
 			if(get_type(idx) != get_type($3))
 				err("incompatible types in assignment");
@@ -489,9 +569,12 @@ exp
   : literal
   | _ID
 	{
-		$$ = lookup_symbol($1, VAR|PAR|GVAR);
-		if($$ == NO_INDEX)
-			err("'%s' undeclared", $1); 
+		$$ = lookup_symbol($1, VAR|PAR);
+		if($$ == NO_INDEX || $$ < fun_idx){
+			$$ = lookup_symbol($1, GVAR);
+			if($$ == NO_INDEX)
+				err("'%s' undeclared", $1);
+		} 
 	}
   | function_call
   	{
@@ -502,36 +585,31 @@ exp
 	{ $$ = $2; }
   | _ID _INC_OP
 	{
-		$$ = lookup_symbol($1, VAR|PAR|GVAR);
-		if($$ == NO_INDEX)
-			err("'%s' undeclared", $1);
-			
-		int idx  = lookup_symbol($1, VAR|PAR|GVAR);
+		int idx = lookup_symbol($1, VAR|PAR);
+		if(idx == NO_INDEX || idx < fun_idx){
+			idx = lookup_symbol($1, GVAR);
+			if(idx == NO_INDEX)
+				err("'%s' undeclared", $1);
+		}
+		
 		$$ = take_reg();
 		set_type($$, get_type(idx));
 		
 		gen_mov(idx, $$);
 		
 		int t1 = get_type(idx);
-  		int k1 = get_kind(idx);	
-  		if(t1 == INT)
-  			if(k1 == GVAR)	
-  				code("\n\t\tADDS\t%s, $1, %s\t", get_name(idx), get_name(idx));
-  			else{
-	  			code("\n\t\tADDS\t");
-	  			gen_sym_name(idx);
-	  			code(", $1, ");
-	  			gen_sym_name(idx);
-  			}  				
-  		else
-  			if(k1 == GVAR)
-  				code("\n\t\tADDU\t%s, $1, %s\t", get_name(idx), get_name(idx));
-  			else{
-  				code("\n\t\tADDS\t");
-	  			gen_sym_name(idx);
-	  			code(", $1, ");
-	  			gen_sym_name(idx);
-	  		}
+  		if(t1 == INT){
+	  		code("\n\t\tADDS\t");
+	  		gen_sym_name(idx);
+	  		code(", $1, ");
+	  		gen_sym_name(idx);
+  		}  				
+  		else{
+  			code("\n\t\tADDS\t");
+	  		gen_sym_name(idx);
+	  		code(", $1, ");
+	  		gen_sym_name(idx);
+	  	}
 	}
   ;
 

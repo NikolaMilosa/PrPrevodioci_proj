@@ -45,6 +45,9 @@ void gen_sym_name(int index) {
       else
         if(get_kind(index) == LIT)
           code("$%s", get_name(index));
+        else 
+          if(get_kind(index) == GVAR)
+            code("%s", get_name(index));
         else //function, reg
           code("%s", get_name(index));
   }
