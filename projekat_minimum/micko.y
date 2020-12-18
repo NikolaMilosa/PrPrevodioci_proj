@@ -250,12 +250,12 @@ var_poss
 	{
 		if(lookup_symbol($1, VAR) == NO_INDEX){
 			int idx_param_exists_check = lookup_symbol($1, PAR);
-		if(idx_param_exists_check > fun_idx) 
-			err("redefinition of parameter '%s'", $1);
-		if(temp_var == get_type($3)) 
-			$$ = insert_symbol($1, VAR, temp_var, ++var_num, NO_ATR);
-		else
-			err("assigning values aren't of the same type");
+			if(idx_param_exists_check > fun_idx) 
+				err("redefinition of parameter '%s'", $1);
+			if(temp_var == get_type($3)) 
+				$$ = insert_symbol($1, VAR, temp_var, ++var_num, NO_ATR);
+			else
+				err("assigning values aren't of the same type");
 		} else {
 			err("redefinition of variable '%s'", $1);
 		}
@@ -310,25 +310,15 @@ statement
 check_exp
   : _CHECK _LSBRAC _ID 
 	{
-		int brParF = get_atr1(fun_idx);
-		int i = fun_idx + 1;
-		int foundInPar = 1;
-		int idx;
-		
-		for(i; i <= fun_idx + brParF; i++){
-			if(strcmp(get_name(i),$3) == 0){
-				foundInPar = 0;
-				temp_var = get_type(i);
-				idx = i;
-			}
-		}
-		if(foundInPar == 1){
-			idx = lookup_symbol($3, VAR|GVAR);
+		int idx = lookup_symbol($3, VAR|PAR);
+		if(idx == NO_INDEX || idx < fun_idx){
+			idx = lookup_symbol($3, GVAR);
 			if(idx == NO_INDEX)
 				err("undeclared '%s'", $3);
-			else
-				temp_var = get_type(idx);
 		}
+		
+		temp_var = get_type(idx);
+		
 		
 		compared_idx = idx;	
 		check_num++;

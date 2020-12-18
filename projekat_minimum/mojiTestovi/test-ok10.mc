@@ -1,6 +1,8 @@
 //Testiranje check iskaza
 //RETURN: 11
-int func(int a,int b){
+
+int a,b;
+int func(int c,int b){
 	check[a]{
 		when 3 ->
 			a = 5;
