@@ -40,7 +40,7 @@
 	int lab_para_num = -1;
 	int lab_check_num = -1;
 	
-	int gtemp_var = 0;
+	int lab_usl_num = -1;
 %}
 
 %union{
@@ -79,6 +79,7 @@
 %token _RSBRAC
 %token _ARROW
 %token _OTHERWISE
+%token _QMARK
 
 %type <i> num_exp exp literal function_call argument var_poss rel_exp if_part 
 %type <i> variable g_var_poss
@@ -119,7 +120,7 @@ g_var_poss
 	{
 		int idx = lookup_symbol($1, GVAR);
 		if(idx == NO_INDEX)
-			idx = insert_symbol($1, GVAR, gtemp_var, NO_ATR, NO_ATR);
+			idx = insert_symbol($1, GVAR, 0, NO_ATR, NO_ATR);
 		else
 			err("redefinition of variable '%s'", $1);
 		$$ = idx;
@@ -131,41 +132,13 @@ g_var_poss
   	{
   		int idx = lookup_symbol($3, GVAR);
   		if(idx == NO_INDEX)
-  			idx = insert_symbol($3, GVAR, gtemp_var, NO_ATR, NO_ATR);
+  			idx = insert_symbol($3, GVAR, 0, NO_ATR, NO_ATR);
   		else
   			err("redefinition of variable '%s'", $3);
   			
   		code("\n%s:",$3);
   		code("\n\t\tWORD\t1");
   	}
-/*
-  | _ID _ASSIGN num_exp
-  	{
-  		int idx = lookup_symbol($1, GVAR);
-  		if(idx == NO_INDEX)
-  			idx = insert_symbol($1, GVAR, gtemp_var, NO_ATR, NO_ATR);
-  		else
-  			err("redefinition of variable '%s'", $1);
-  		
-  		if(get_type(idx) != get_type($3))
-  			err("assigning values aren't of the same type");
-  			
-  		$$ = idx;
-  		
-  		
-  	}	
-  | g_var_poss _COMMA _ID _ASSIGN num_exp
-  	{
-  		int idx = lookup_symbol($3, GVAR);
-  		if(idx == NO_INDEX)
-  			idx = insert_symbol($3, GVAR, gtemp_var, NO_ATR, NO_ATR);
-  		else
-  			err("redefinition of variable '%s'", $3);
-  			
-  		if(get_type(idx) != get_type($5))
-  			err("assigning values aren't of the same type");
-  	}
-*/
   ;
 
 function_list
@@ -277,12 +250,12 @@ var_poss
 	{
 		if(lookup_symbol($1, VAR) == NO_INDEX){
 			int idx_param_exists_check = lookup_symbol($1, PAR);
-		if(idx_param_exists_check > fun_idx) 
-			err("redefinition of parameter '%s'", $1);
-		if(temp_var == get_type($3)) 
-			$$ = insert_symbol($1, VAR, temp_var, ++var_num, NO_ATR);
-		else
-			err("assigning values aren't of the same type");
+			if(idx_param_exists_check > fun_idx) 
+				err("redefinition of parameter '%s'", $1);
+			if(temp_var == get_type($3)) 
+				$$ = insert_symbol($1, VAR, temp_var, ++var_num, NO_ATR);
+			else
+				err("assigning values aren't of the same type");
 		} else {
 			err("redefinition of variable '%s'", $1);
 		}
@@ -337,25 +310,15 @@ statement
 check_exp
   : _CHECK _LSBRAC _ID 
 	{
-		int brParF = get_atr1(fun_idx);
-		int i = fun_idx + 1;
-		int foundInPar = 1;
-		int idx;
-		
-		for(i; i <= fun_idx + brParF; i++){
-			if(strcmp(get_name(i),$3) == 0){
-				foundInPar = 0;
-				temp_var = get_type(i);
-				idx = i;
-			}
-		}
-		if(foundInPar == 1){
-			idx = lookup_symbol($3, VAR|GVAR);
+		int idx = lookup_symbol($3, VAR|PAR);
+		if(idx == NO_INDEX || idx < fun_idx){
+			idx = lookup_symbol($3, GVAR);
 			if(idx == NO_INDEX)
 				err("undeclared '%s'", $3);
-			else
-				temp_var = get_type(idx);
 		}
+		
+		temp_var = get_type(idx);
+		
 		
 		compared_idx = idx;	
 		check_num++;
@@ -611,6 +574,30 @@ exp
 	  		gen_sym_name(idx);
 	  	}
 	}
+  | _LPAREN exp _RELOP exp _RPAREN _QMARK exp _COLON exp
+  	{
+  		$$ = take_reg();
+  		set_type($$,get_type($7));
+  		
+  		if(get_type($2) != get_type($4))
+  			err("compared expressions aren't of the same type");
+  		if(get_type($7) != get_type($9))
+  			err("assigning expressions aren't of the same type");
+  			
+  		code("\n@usl_izr_begin%d:", ++lab_usl_num);
+  		gen_cmp($2,$4);
+  		
+  		int help = $3 + (get_type($2) - 1)*RELOP_NUMBER;
+  		code("\n\t\t%s\t@usl_izr_true%d",jumps[help], lab_usl_num);
+  		code("\n@usl_izr_false%d:", lab_usl_num);
+  		
+  		gen_mov($9,$$);
+  		code("\n\t\tJMP\t@usl_izr_end%d",lab_usl_num);
+  		
+  		code("\n@usl_izr_true%d:",lab_usl_num);
+  		gen_mov($7,$$);
+  		code("\n@usl_izr_end%d:", lab_usl_num);
+  	}	
   ;
 
 literal

@@ -30,6 +30,7 @@
 "["                  { return _LSBRAC; }
 "]"                  { return _RSBRAC; }
 "->"                 { return _ARROW; }
+"?"                  { return _QMARK; }
 
 
 ","                  { return _COMMA; }
