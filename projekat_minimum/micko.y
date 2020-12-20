@@ -568,7 +568,7 @@ exp
 	  		gen_sym_name(idx);
   		}  				
   		else{
-  			code("\n\t\tADDS\t");
+  			code("\n\t\tADDU\t");
 	  		gen_sym_name(idx);
 	  		code(", $1, ");
 	  		gen_sym_name(idx);
