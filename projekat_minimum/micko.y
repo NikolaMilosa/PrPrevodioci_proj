@@ -527,6 +527,8 @@ num_exp
   	}_AROP exp
 	{
 	
+		printf("\nNadjen slozen izraz");
+	
 		int temp_reg;
 		if(pushed_reg != 0){
 			temp_reg = take_reg();
@@ -547,9 +549,11 @@ num_exp
 		code(",");
 		gen_sym_name($4);
 		code(",");
+		
 		free_if_reg($4);
 		free_if_reg(temp_reg);
 		$$ = take_reg();
+		
 		gen_sym_name($$);
 		set_type($$, t1);
 	}
@@ -557,6 +561,9 @@ num_exp
 
 exp
   : literal
+  	{
+  		$$ = $1;
+  	}
   | _ID
 	{
 		$$ = lookup_symbol($1, VAR|PAR);
@@ -569,6 +576,7 @@ exp
   | function_call
   	{
   		$$ = FUN_REG;
+  		
   	}
   | _LPAREN num_exp _RPAREN
 	{ $$ = $2; }
