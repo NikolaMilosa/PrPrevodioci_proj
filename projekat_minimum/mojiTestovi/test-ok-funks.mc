@@ -1,7 +1,12 @@
 //Testiranje deklaracije funkcije
 //RETURN: 12
 
-int fun(int b,int c,int a);
+int fun(int b, int c, int a){
+
+	b = b + c + a + c;
+	
+	return b;
+}
 
 int main(){
 
@@ -12,11 +17,6 @@ int main(){
 	return a;
 }
 
-int fun(int b, int c, int a){
 
-	b = b + c + a + c;
-	
-	return b;
-}
 
 
