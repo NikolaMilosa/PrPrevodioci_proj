@@ -2119,7 +2119,7 @@ yyreduce:
 			
 		
 		code("\n\t\tPUSH\t");
-		gen_sym_name((yyvsp[-2].i));	
+		gen_sym_name((yyvsp[0].i));	
 		free_if_reg((yyvsp[0].i));
 		
 		(yyval.i) = arg_count;
