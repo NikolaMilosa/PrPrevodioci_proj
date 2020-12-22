@@ -509,11 +509,25 @@ assignment_statement
 
 num_exp
   : exp
+  	{
+  		$$ = $1;
+  		if(get_kind($$) == REG){
+  			code("PUSH\t");
+  			gen_sym_name($1);
+  		}
+  	}
   | num_exp _AROP exp
 	{
 		if(get_type($1) != get_type($3))
 			err("invalid operands : arithmetic operation");
 			
+		int temp_reg;	
+		if(get_kind($1) == FUN){
+			code("POP\t");
+			temp_reg = take_reg();
+			gen_sym_name(temp_reg);
+			$1 = temp_reg;
+		}
 		int t1 = get_type($1);
 		code("\n\t\t%s\t", ar_instructions[$2 + (t1 - 1) * AROP_NUMBER]);
 		gen_sym_name($1);

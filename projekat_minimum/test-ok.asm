@@ -21,7 +21,7 @@ main:
 		PUSH	$8
 		CALL	fun
 		ADDS	%15,$12,%15
-		MOV 	%13,%0
+		MOV 	%13,%0PUSH	%0
 		ADDS	%0,$5,%0
 		MOV 	%0,-4(%14)
 		MOV 	-4(%14),%13
