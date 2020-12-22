@@ -41,6 +41,9 @@
 	int lab_check_num = -1;
 	
 	int lab_usl_num = -1;
+	
+	int pushed_reg = 0;
+	int saved_type = 0;
 %}
 
 %union{
@@ -511,31 +514,41 @@ num_exp
   : exp
   	{
   		$$ = $1;
-  		if(get_kind($$) == REG){
-  			code("PUSH\t");
-  			gen_sym_name($1);
-  		}
   	}
-  | num_exp _AROP exp
+  | num_exp 
+  	{
+  		saved_type = get_type($1);
+  		if(get_kind($1) == REG){
+  			code("\n\t\tPUSH\t");
+  			gen_sym_name($1);
+  			free_if_reg($1);
+  			pushed_reg++;
+  		}
+  	}_AROP exp
 	{
-		if(get_type($1) != get_type($3))
-			err("invalid operands : arithmetic operation");
-			
-		int temp_reg;	
-		if(get_kind($1) == FUN){
-			code("POP\t");
+	
+		int temp_reg;
+		if(pushed_reg != 0){
 			temp_reg = take_reg();
+			code("\n\t\tPOP \t");
 			gen_sym_name(temp_reg);
-			$1 = temp_reg;
+			set_type(temp_reg,saved_type);
+			pushed_reg--;
 		}
+		else
+			temp_reg = $1;
+		
+		if(get_type(temp_reg) != get_type($4))
+			err("invalid operands : arithmetic operation");
+				
 		int t1 = get_type($1);
-		code("\n\t\t%s\t", ar_instructions[$2 + (t1 - 1) * AROP_NUMBER]);
-		gen_sym_name($1);
+		code("\n\t\t%s\t", ar_instructions[$3 + (t1 - 1) * AROP_NUMBER]);
+		gen_sym_name(temp_reg);
 		code(",");
-		gen_sym_name($3);
+		gen_sym_name($4);
 		code(",");
-		free_if_reg($3);
-		free_if_reg($1);
+		free_if_reg($4);
+		free_if_reg(temp_reg);
 		$$ = take_reg();
 		gen_sym_name($$);
 		set_type($$, t1);
@@ -555,8 +568,7 @@ exp
 	}
   | function_call
   	{
-  		$$ = take_reg();
-  		gen_mov(FUN_REG, $$);
+  		$$ = FUN_REG;
   	}
   | _LPAREN num_exp _RPAREN
 	{ $$ = $2; }

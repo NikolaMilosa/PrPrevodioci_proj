@@ -14,14 +14,17 @@ fun:
 main:
 		PUSH	%14
 		MOV 	%15,%14
-		SUBS	%15,$12,%15
+		MOV 	$5,-16(%14)
+		MOV 	$3,-20(%14)
+		SUBS	%15,$20,%15
 @main_body:
 		PUSH	$0
 		PUSH	$3
 		PUSH	$8
 		CALL	fun
 		ADDS	%15,$12,%15
-		MOV 	%13,%0PUSH	%0
+		PUSH	%13
+		POP 	%0
 		ADDS	%0,$5,%0
 		MOV 	%0,-4(%14)
 		MOV 	-4(%14),%13

@@ -11,6 +11,8 @@ int main(){
 
 	int a,b,c;
 	
+	int e = 5, f = 3;
+	
 	a = fun(0,3,8) + 5;
 	
 	return a;
