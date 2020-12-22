@@ -4,3 +4,5 @@
 - Dodatno uveden koncept lokalne promenljive za compound statemente
 - Globalne promenljive
 - VAR kljucna rec
+- deklaracija funkcije (kada je atr2 = 1, nije definisano telo)
+- ako nije dodeljena vrednost promenljivoj staviti na 0
