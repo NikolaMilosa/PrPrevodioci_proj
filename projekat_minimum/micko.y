@@ -251,6 +251,7 @@ var_poss
 	} 
   | _ID _ASSIGN num_exp
 	{
+		int idx;
 		if(lookup_symbol($1, VAR) == NO_INDEX){
 			int idx_param_exists_check = lookup_symbol($1, PAR);
 			if(idx_param_exists_check > fun_idx) 
@@ -278,6 +279,7 @@ var_poss
 	}
   | var_poss _COMMA _ID _ASSIGN num_exp
 	{
+		int idx;
 		if(lookup_symbol($3, VAR) == NO_INDEX){
 			int idx_param_exists_check = lookup_symbol($3, PAR);
 			if(idx_param_exists_check > fun_idx) 
@@ -525,10 +527,7 @@ num_exp
   			pushed_reg++;
   		}
   	}_AROP exp
-	{
-	
-		printf("\nNadjen slozen izraz");
-	
+	{	
 		int temp_reg;
 		if(pushed_reg != 0){
 			temp_reg = take_reg();
@@ -576,10 +575,9 @@ exp
   | function_call
   	{
   		$$ = FUN_REG;
-  		
   	}
   | _LPAREN num_exp _RPAREN
-	{ $$ = $2; }
+	{ $$ = $2;}
   | _ID _INC_OP
 	{
 		int idx = lookup_symbol($1, VAR|PAR);
