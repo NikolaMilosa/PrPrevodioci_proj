@@ -10,7 +10,9 @@ int fun(int b,int c,int a){
 int main(){
 
 	int a,b = fun(1,1,1) + fun(1,1,1),c = 3;
-	int e = (b + b) + (c + c);
+	int e = (b + b) + c + c;
+	
+	int f = 3;
 	
 	a = fun(0,3,8) + 5;
 	
