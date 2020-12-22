@@ -1,5 +1,5 @@
 //Testiranje deklaracije funkcije
-//RETURN: 29
+//RETURN: 23
 
 int fun(int b, int c, int a){
 	b = c + c + a;
@@ -15,9 +15,11 @@ int main(){
 
 	int a,b,c;
 	
-	a = fun1(3,3) + fun(0,3,8) + fun1(4,5);
+	int e = fun(1,5,5) + fun1(2,3), f = fun(1,1,1);
 	
-	return a;
+	a = fun1(3,3) + fun(0,3,8) + fun1(4,5) + fun(0,0,0);
+	
+	return e + f;
 }
 
 
