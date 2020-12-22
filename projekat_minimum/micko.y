@@ -509,6 +509,9 @@ assignment_statement
 
 num_exp
   : exp
+  	{
+  		$$ = $1;
+  	}
   | num_exp _AROP exp
 	{
 		if(get_type($1) != get_type($3))
@@ -530,6 +533,9 @@ num_exp
 
 exp
   : literal
+  	{
+  		$$ = $1;
+  	}
   | _ID
 	{
 		$$ = lookup_symbol($1, VAR|PAR);
