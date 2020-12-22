@@ -41,14 +41,14 @@ void gen_sym_name(int index) {
       code("-%d(%%14)", get_atr1(index) * 4);
     else 
       if(get_kind(index) == PAR) // m*4(%14)
-        {
-        	int i = index;
-        	int tek_fun;
-        	for(i; i > FUN_REG; i--)
-        		if(get_kind(i) == FUN)
-        			tek_fun = i;
-        	code("%d(%%14)", 4 + (get_atr1(tek_fun) + 1 - get_atr1(index)) *4);
-        }
+      {
+      	int i = index;
+      	int tek_fun;
+      	for(i; i > FUN_REG; i--)
+      		if(get_kind(i) == FUN)
+      			tek_fun = i;
+        code("%d(%%14)", 4 + (get_atr1(tek_fun) + 1 - get_atr1(index)) *4);
+      }
       else
         if(get_kind(index) == LIT)
           code("$%s", get_name(index));
