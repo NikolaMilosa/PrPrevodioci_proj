@@ -649,7 +649,7 @@ argument
 			
 		
 		code("\n\t\tPUSH\t");
-		gen_sym_name($1);	
+		gen_sym_name($3);	
 		free_if_reg($3);
 		
 		$$ = arg_count;
