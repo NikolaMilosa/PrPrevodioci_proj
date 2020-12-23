@@ -5,6 +5,8 @@
 
 
 // dodate funkcije : 
+void push_reg();
+void pop_reg();
 void push_vars(int curr_var_num);
 void pop_vars(int curr_var_num);
 // funkcije za zauzimanje, oslobadjanje registra

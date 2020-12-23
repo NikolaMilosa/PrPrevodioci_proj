@@ -171,12 +171,18 @@ function
 		code("\n%s:", $2);
 		code("\n\t\tPUSH\t%%14");
 		code("\n\t\tMOV \t%%15,%%14");
+		if(strcmp(get_name(fun_idx),"main") != 0)
+			push_reg();
 	}
 	_LPAREN {param_count = 0;} parameter {set_atr1(fun_idx, param_count);} _RPAREN body
 	{
 		
 		clear_symbols(fun_idx + param_count + 1);
 		var_num = 0;
+		
+		
+		if(strcmp(get_name(fun_idx),"main") != 0)
+			pop_reg();
 		
 		code("\n@%s_exit:", $2);
 		code("\n\t\tMOV \t%%14,%%15");
@@ -524,30 +530,31 @@ num_exp
 
   | num_exp 
   	{
-  		saved_type = get_type($1);
   		if(get_kind($1) == REG){
   			code("\n\t\tPUSH\t");
   			gen_sym_name($1);
+  			pushed_reg = 1;
+  			saved_type = get_type($1);
   			free_if_reg($1);
-  			pushed_reg++;
   		}
   	}_AROP exp
 	{	
 		int temp_reg;
 		if(pushed_reg != 0){
-			temp_reg = take_reg();
+			pushed_reg = 0;
 			code("\n\t\tPOP \t");
+			temp_reg = take_reg();
 			gen_sym_name(temp_reg);
 			set_type(temp_reg,saved_type);
-			pushed_reg--;
 		}
 		else
 			temp_reg = $1;
 		
+		
 		if(get_type(temp_reg) != get_type($4))
 			err("invalid operands : arithmetic operation");
 				
-		int t1 = get_type($1);
+		int t1 = get_type(temp_reg);
 		code("\n\t\t%s\t", ar_instructions[$3 + (t1 - 1) * AROP_NUMBER]);
 		gen_sym_name(temp_reg);
 		code(",");
