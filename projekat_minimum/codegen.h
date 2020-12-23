@@ -5,7 +5,8 @@
 
 
 // dodate funkcije : 
-void reorder_stack(int curr_var_num, int arg_count);
+void push_vars(int curr_var_num);
+void pop_vars(int curr_var_num);
 // funkcije za zauzimanje, oslobadjanje registra
 int  take_reg(void);
 void free_reg(void);
