@@ -7,8 +7,10 @@ int fun(int b, int c, int a){
 	return b;
 }
 int fun1(int b, int c){
+	int a = 4, f = fun(0,0,0);
+
 	b = fun(0,0,0) + b + c;
-	return b;
+	return a;
 }
 
 int main(){
@@ -23,7 +25,7 @@ int main(){
 	
 	a = a + 1;
 	
-	return e + f;
+	return a;
 }
 
 
