@@ -1,21 +1,21 @@
-//Testiranje
-//RETURN: 7
+//Testiranje deklaracije funkcije
+//RETURN: 16
 
-int y;
+int fun(int b,int c,int a){
+	b = c + a;
+	
+	return b;
+}
 
 int main(){
 
-	int x;
-	x = 2;
-	y = 6;
+	int a,b,c;
 	
-	if(x++ == y){
-		x = 2;
-	}
+	int e = 5, f = 3;
 	
-	if(x < y++)
-		x = 0;
-		
-	return x + y;
+	a = fun(0,3,8) + 5;
 	
+	return a;
 }
+
+

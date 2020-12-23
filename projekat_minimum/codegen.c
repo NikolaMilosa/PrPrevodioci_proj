@@ -11,18 +11,17 @@ char invalid_value[] = "???";
 
 // Dodate funkcije :
 
-void reorder_stack(int curr_var_num, int arg_count){
+void push_vars(int curr_var_num){
 	int i = curr_var_num;
-	
-	for(i; i > 0; i--){
-		code("\n\tMOV \t-%d(%%14),-%d(%%14)", (i + arg_count) * 4, i * 4);
-	}
-	/*
-	code("\n\tMOV \t8(%%14), -4(%%14)");
-	code("\n\tMOV \t4(%%14), -8(%%14)");
-	code("\n\tMOV \t0(%%14), -12(%%14)");
-	*/
+	for(i; i > 0; i--)
+		code("\n\tPUSH\t-%d(%%14)", i*4);
 }
+
+void pop_vars(int curr_var_num){
+	int i = 1;
+	for(i; i <= curr_var_num; i++)
+		code("\n\tPOP \t-%d(%%14)", i*4);
+} 
 
 // REGISTERS
 
