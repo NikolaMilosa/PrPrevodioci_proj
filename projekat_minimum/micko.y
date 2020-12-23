@@ -556,8 +556,8 @@ num_exp
 		
 		free_if_reg($4);
 		free_if_reg(temp_reg);
-		$$ = take_reg();
 		
+		$$ = take_reg();
 		gen_sym_name($$);
 		set_type($$, t1);
 	}

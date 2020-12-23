@@ -1935,8 +1935,8 @@ yyreduce:
 		
 		free_if_reg((yyvsp[0].i));
 		free_if_reg(temp_reg);
-		(yyval.i) = take_reg();
 		
+		(yyval.i) = take_reg();
 		gen_sym_name((yyval.i));
 		set_type((yyval.i), t1);
 	}
