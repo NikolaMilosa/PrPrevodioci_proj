@@ -648,8 +648,9 @@ function_call
 		fcall_idx = lookup_symbol($1, FUN);
 		if(fcall_idx == NO_INDEX)
 			err("'%s' is not a function", $1);
-			
-		push_vars(var_num);
+		
+		if(num_exp_called_for_var == 1)
+			push_vars(var_num);
 	}
     _LPAREN {arg_count = 0;} argument _RPAREN
 	{
@@ -661,7 +662,8 @@ function_call
 		if($5 > 0)
 			code("\n\t\tADDS\t%%15,$%d,%%15", $5 * 4);
 			
-		pop_vars(var_num);
+		if(num_exp_called_for_var == 1)
+			pop_vars(var_num);
 		
 		set_type(FUN_REG, get_type(fcall_idx));
 		$$ = FUN_REG;
