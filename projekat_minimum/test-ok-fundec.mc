@@ -13,16 +13,15 @@ int fun1(int b, int c){
 
 int main(){
 
-	int a,b = 3,c = 3;
+	int a = 3,b = 3,c = 3;
 	
-	int f = fun(0,1,6);	
+	int f = fun(0,1,9);	
 	
 	int k = (b + b) + (b == c) ? 1 : 2;
 	
 	a = fun1(3,3) + fun(0,3,8) + fun1(4,5) + fun(0,0,0);
 	
 	return c;
-
 }
 
 

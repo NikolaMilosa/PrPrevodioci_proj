@@ -44,6 +44,8 @@
 	
 	int pushed_reg = 0;
 	int saved_type = 0;
+	
+	int num_exp_called_for_var = 0;
 %}
 
 %union{
@@ -205,13 +207,15 @@ parameter
   ;
 
 body
-  : _LBRACKET { cur_fun_returned = 0;} 
+  : _LBRACKET { cur_fun_returned = 0; num_exp_called_for_var = 1;} 
     variable_list
     {
     	if(var_num)
 	  		code("\n\t\tSUBS\t%%15,$%d,%%15", 4*var_num);
 	  		
 	  	code("\n@%s_body:", get_name(fun_idx));
+	  	
+	  	num_exp_called_for_var = 0;
     } statement_list 
 	{
 		if(cur_fun_returned == 0){
@@ -651,8 +655,14 @@ function_call
 			err("Wrong number of args to function '%s'", get_name(fcall_idx));
 			
 		code("\n\t\tCALL\t%s", get_name(fcall_idx));
-		if($5 > 0)
-			code("\n\t\tADDS\t%%15,$%d,%%15", $5 * 4);	
+		
+		if($5 > 0){
+			code("\n\t\tADDS\t%%15,$%d,%%15", $5 * 4);
+			if(num_exp_called_for_var == 1)
+				reorder_stack(var_num,$5);
+		}
+			
+		
 		
 		set_type(FUN_REG, get_type(fcall_idx));
 		$$ = FUN_REG;

@@ -19,12 +19,14 @@ main:
 		PUSH	$1
 		CALL	fun
 		ADDS	%15,$12,%15
+	MOV 	-16(%14),-4(%14)
 		PUSH	%13
 		PUSH	$1
 		PUSH	$1
 		PUSH	$1
 		CALL	fun
 		ADDS	%15,$12,%15
+	MOV 	-16(%14),-4(%14)
 		POP 	%0
 		ADDS	%0,%13,%0
 		MOV 	%0,-8(%14)

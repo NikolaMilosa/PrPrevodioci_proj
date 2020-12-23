@@ -9,6 +9,21 @@ extern FILE *output;
 int free_reg_num = 0;
 char invalid_value[] = "???";
 
+// Dodate funkcije :
+
+void reorder_stack(int curr_var_num, int arg_count){
+	int i = curr_var_num;
+	
+	for(i; i > 0; i--){
+		code("\n\tMOV \t-%d(%%14),-%d(%%14)", (i + arg_count) * 4, i * 4);
+	}
+	/*
+	code("\n\tMOV \t8(%%14), -4(%%14)");
+	code("\n\tMOV \t4(%%14), -8(%%14)");
+	code("\n\tMOV \t0(%%14), -12(%%14)");
+	*/
+}
+
 // REGISTERS
 
 int take_reg(void) {

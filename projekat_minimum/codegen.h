@@ -3,6 +3,9 @@
 
 #include "defs.h"
 
+
+// dodate funkcije : 
+void reorder_stack(int curr_var_num, int arg_count);
 // funkcije za zauzimanje, oslobadjanje registra
 int  take_reg(void);
 void free_reg(void);
