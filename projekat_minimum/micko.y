@@ -48,6 +48,11 @@
 	int num_exp_called_for_var = 0;
 	
 	int was_a_fun = 0;
+	
+	int first_decled = 0;
+	int var_num_saver = 0;
+	int begin_id = 0;
+	int end_id = 0;
 %}
 
 %union{
@@ -245,10 +250,23 @@ variable_list
 variable
   : _TYPE 
 	{
+		first_decled = 0;
+		var_num_saver = var_num;
+		begin_id = get_last_element();
 		if($1 == VOID)
 			err("parameters and variables cannot be of VOID type"); 
 		temp_var = $1; 
 	} var_poss _SEMICOLON
+	{
+		
+		if(first_decled == var_num){
+			int i = 1;
+			for(i; i < (var_num - var_num_saver); i++)
+				if(get_kind(begin_id + i) == VAR)
+					gen_mov(end_id, begin_id + i);
+		}
+		
+	}
   ;
 
 var_poss 
@@ -309,6 +327,12 @@ var_poss
 			err("redefinition of '%s'", $3);
 			
 		gen_mov($5, $$);
+		
+		if(first_decled == 0){
+			first_decled = var_num;
+			end_id = $$;
+		}
+		
 	}
   ;
 statement_list
