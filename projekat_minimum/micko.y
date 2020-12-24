@@ -46,6 +46,8 @@
 	int saved_type = 0;
 	
 	int num_exp_called_for_var = 0;
+	
+	int was_a_fun = 0;
 %}
 
 %union{
@@ -187,15 +189,20 @@ function
   ;
 
 parameter
-  : /* empty */ { set_atr1(fun_idx, 0); }
-  | _TYPE _ID
+  : 
+  | func_with_par
+  ;
+  
+  
+func_with_par
+  :  _TYPE _ID
 	{
 		if($1 == VOID)
 			err("parameters and variables cannot be of VOID type");
 		param_count++;
 		insert_symbol($2, PAR, $1, param_count, NO_ATR);
 	}
-  | parameter _COMMA _TYPE _ID
+  | func_with_par _COMMA _TYPE _ID
 	{
 		int idx = lookup_symbol($4, VAR|PAR);
 		if(idx < fun_idx){
@@ -437,7 +444,7 @@ para_statement
 			err("in PASO exp, expression parameters aren't of the same type");
 		int lit1 = atoi(get_name($6));
 		int lit2 = atoi(get_name($8));
-		if(lit2 < lit1)
+		if(lit2 <= lit1)
 			err("in PASO exp, parameter 1 must be less than parameter 2");
 			
 		gen_mov($6,idx);
@@ -530,12 +537,11 @@ num_exp
   | num_exp
   	{
   		
-  		if(get_kind($1) == REG){
+  		if($1 == FUN_REG){
   			saved_type = get_type($1);
   			pushed_reg++;
   			code("\n\tPUSH\t");
   			gen_sym_name($1);
-  			free_if_reg($1);
   		}
   		
   	} _AROP exp
@@ -548,6 +554,8 @@ num_exp
 			set_type(temp_reg,saved_type);
 			code("\n\tPOP \t");
 			gen_sym_name(temp_reg);
+			$$ = FUN_REG;
+			was_a_fun = 1;
 		}
 		else{
 			temp_reg = $1;
@@ -567,7 +575,10 @@ num_exp
 		free_if_reg(temp_reg);
 		free_if_reg($4);
 		
-		$$ = take_reg();
+		if(was_a_fun == 0)
+			$$ = take_reg();
+		else
+			was_a_fun = 0;
 		gen_sym_name($$);
 		set_type($$, t1);
 		
@@ -586,7 +597,7 @@ exp
 			$$ = lookup_symbol($1, GVAR);
 			if($$ == NO_INDEX)
 				err("'%s' undeclared", $1);
-		} 
+		}
 	}
   | function_call
   	{
