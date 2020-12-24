@@ -3,12 +3,6 @@
 
 #include "defs.h"
 
-
-// dodate funkcije : 
-void push_reg();
-void pop_reg();
-void push_vars(int curr_var_num);
-void pop_vars(int curr_var_num);
 // funkcije za zauzimanje, oslobadjanje registra
 int  take_reg(void);
 void free_reg(void);

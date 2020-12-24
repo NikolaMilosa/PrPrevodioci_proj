@@ -9,35 +9,6 @@ extern FILE *output;
 int free_reg_num = 0;
 char invalid_value[] = "???";
 
-// Dodate funkcije :
-
-void push_reg(){
-	int i = 0;
-	for(i; i <= LAST_WORKING_REG; i++)
-		code("\n\tPUSH\t%%%d", i);
-}
-void pop_reg(){
-	int i = LAST_WORKING_REG;
-	for(i; i >= 0; i--)
-		code("\n\tPOP \t%%%d", i);
-}
-
-void push_vars(int curr_var_num){
-	
-	int i = curr_var_num;
-	for(i; i > 0; i--)
-		code("\n\t\tPUSH\t-%d(%%14)", i*4);
-	
-}
-
-void pop_vars(int curr_var_num){
-	
-	int i = 1;
-	for(i; i <= curr_var_num; i++)
-		code("\n\t\tPOP \t-%d(%%14)", i*4);
-			
-} 
-
 // REGISTERS
 
 int take_reg(void) {
