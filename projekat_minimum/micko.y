@@ -238,6 +238,7 @@ body
 		if(cur_fun_returned == 0){
 			if(get_type(fun_idx) != VOID)
 				warn("Function '%s' expected a return value", get_name(fun_idx));
+		
 	  }
 	}  _RBRACKET
   ;
@@ -704,7 +705,8 @@ function_call
 		code("\n\t\tCALL\t%s", get_name(fcall_idx));
 		
 		if($5 > 0)
-			code("\n\t\tADDS\t%%15,$%d,%%15", $5 * 4);
+			code("\n\t\tADDS\t%%15,$%d,%%15", ($5 * 4));
+		
 			
 		if(num_exp_called_for_var == 1)
 			pop_vars(var_num);

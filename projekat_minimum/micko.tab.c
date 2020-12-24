@@ -518,13 +518,13 @@ static const yytype_uint16 yyrline[] =
 {
        0,   105,   105,   112,   114,   118,   131,   143,   157,   158,
      163,   183,   183,   162,   196,   198,   203,   210,   224,   229,
-     237,   223,   245,   247,   252,   251,   273,   286,   303,   314,
-     338,   340,   344,   345,   346,   347,   348,   349,   350,   351,
-     352,   357,   376,   356,   391,   397,   396,   408,   409,   414,
-     417,   425,   424,   447,   455,   456,   455,   503,   530,   534,
-     554,   560,   559,   611,   615,   624,   628,   630,   658,   685,
-     686,   691,   699,   690,   718,   719,   732,   748,   750,   756,
-     760,   755,   772,   783,   792,   801,   805,   806
+     237,   223,   246,   248,   253,   252,   274,   287,   304,   315,
+     339,   341,   345,   346,   347,   348,   349,   350,   351,   352,
+     353,   358,   377,   357,   392,   398,   397,   409,   410,   415,
+     418,   426,   425,   448,   456,   457,   456,   504,   531,   535,
+     555,   561,   560,   612,   616,   625,   629,   631,   659,   686,
+     687,   692,   700,   691,   720,   721,   734,   750,   752,   758,
+     762,   757,   774,   785,   794,   803,   807,   808
 };
 #endif
 
@@ -1567,13 +1567,14 @@ yyreduce:
 		if(cur_fun_returned == 0){
 			if(get_type(fun_idx) != VOID)
 				warn("Function '%s' expected a return value", get_name(fun_idx));
+		
 	  }
 	}
-#line 1573 "micko.tab.c" /* yacc.c:1646  */
+#line 1574 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 252 "micko.y" /* yacc.c:1646  */
+#line 253 "micko.y" /* yacc.c:1646  */
     {
 		first_decled = 0;
 		var_num_saver = var_num;
@@ -1582,11 +1583,11 @@ yyreduce:
 			err("parameters and variables cannot be of VOID type"); 
 		temp_var = (yyvsp[0].i); 
 	}
-#line 1586 "micko.tab.c" /* yacc.c:1646  */
+#line 1587 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 260 "micko.y" /* yacc.c:1646  */
+#line 261 "micko.y" /* yacc.c:1646  */
     {
 		
 		if(first_decled == var_num){
@@ -1597,11 +1598,11 @@ yyreduce:
 		}
 		
 	}
-#line 1601 "micko.tab.c" /* yacc.c:1646  */
+#line 1602 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 274 "micko.y" /* yacc.c:1646  */
+#line 275 "micko.y" /* yacc.c:1646  */
     {
 	  
 		if(lookup_symbol((yyvsp[0].s), VAR) == NO_INDEX){
@@ -1614,11 +1615,11 @@ yyreduce:
 		else
 			err("redefinition of variable '%s'", (yyvsp[0].s));
 	}
-#line 1618 "micko.tab.c" /* yacc.c:1646  */
+#line 1619 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 287 "micko.y" /* yacc.c:1646  */
+#line 288 "micko.y" /* yacc.c:1646  */
     {
 		int idx;
 		if(lookup_symbol((yyvsp[-2].s), VAR) == NO_INDEX){
@@ -1635,11 +1636,11 @@ yyreduce:
 		
 		gen_mov((yyvsp[0].i),(yyval.i));
 	}
-#line 1639 "micko.tab.c" /* yacc.c:1646  */
+#line 1640 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 304 "micko.y" /* yacc.c:1646  */
+#line 305 "micko.y" /* yacc.c:1646  */
     {
 		if(lookup_symbol((yyvsp[0].s), VAR) == NO_INDEX){
 			int idx_param_exists_check = lookup_symbol((yyvsp[0].s), PAR);
@@ -1650,11 +1651,11 @@ yyreduce:
 		else
 			err("redefinition of '%s'", (yyvsp[0].s));
 	}
-#line 1654 "micko.tab.c" /* yacc.c:1646  */
+#line 1655 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 315 "micko.y" /* yacc.c:1646  */
+#line 316 "micko.y" /* yacc.c:1646  */
     {
 		int idx;
 		if(lookup_symbol((yyvsp[-2].s), VAR) == NO_INDEX){
@@ -1677,11 +1678,11 @@ yyreduce:
 		}
 		
 	}
-#line 1681 "micko.tab.c" /* yacc.c:1646  */
+#line 1682 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 357 "micko.y" /* yacc.c:1646  */
+#line 358 "micko.y" /* yacc.c:1646  */
     {
 		int idx = lookup_symbol((yyvsp[0].s), VAR|PAR);
 		if(idx == NO_INDEX || idx < fun_idx){
@@ -1701,17 +1702,17 @@ yyreduce:
 			currently_in_check++;
 		}					
 	}
-#line 1705 "micko.tab.c" /* yacc.c:1646  */
+#line 1706 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 376 "micko.y" /* yacc.c:1646  */
+#line 377 "micko.y" /* yacc.c:1646  */
     { lit_last_in_mem = get_last_element(); }
-#line 1711 "micko.tab.c" /* yacc.c:1646  */
+#line 1712 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 377 "micko.y" /* yacc.c:1646  */
+#line 378 "micko.y" /* yacc.c:1646  */
     {
     	int i = lit_last_in_mem;
     	for(i; i <= get_last_element(); i++)
@@ -1723,54 +1724,54 @@ yyreduce:
     	if(currently_in_check != 0)
     		currently_in_check--;    	
     }
-#line 1727 "micko.tab.c" /* yacc.c:1646  */
+#line 1728 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 391 "micko.y" /* yacc.c:1646  */
+#line 392 "micko.y" /* yacc.c:1646  */
     {
   		code("\n@%dcheck%d_when%d:",check_count,check_num,when_num);
   		code("\n@%dcheck%d_when%d_body:",check_count,check_num,when_num);
   		code("\n@%dcheck%d_end:",check_count,check_num);
   	}
-#line 1737 "micko.tab.c" /* yacc.c:1646  */
+#line 1738 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 397 "micko.y" /* yacc.c:1646  */
+#line 398 "micko.y" /* yacc.c:1646  */
     {
   		code("\n@%dcheck%d_when%d:",check_count,check_num,when_num);
   		code("\n@%dcheck%d_when%d_body:",check_count,check_num,when_num);
   	}
-#line 1746 "micko.tab.c" /* yacc.c:1646  */
+#line 1747 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 402 "micko.y" /* yacc.c:1646  */
+#line 403 "micko.y" /* yacc.c:1646  */
     {
   		code("\n@%dcheck%d_end:",check_count,check_num);
   	}
-#line 1754 "micko.tab.c" /* yacc.c:1646  */
+#line 1755 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 414 "micko.y" /* yacc.c:1646  */
+#line 415 "micko.y" /* yacc.c:1646  */
     {
   		code("\n\t\tJMP\t@%dcheck%d_when%d_body",check_count,check_num,when_num);
   	}
-#line 1762 "micko.tab.c" /* yacc.c:1646  */
+#line 1763 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 418 "micko.y" /* yacc.c:1646  */
+#line 419 "micko.y" /* yacc.c:1646  */
     {
   		code("\n\t\tJMP\t@%dcheck%d_end",check_count, check_num);
   	}
-#line 1770 "micko.tab.c" /* yacc.c:1646  */
+#line 1771 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 51:
-#line 425 "micko.y" /* yacc.c:1646  */
+#line 426 "micko.y" /* yacc.c:1646  */
     {
   		code("\n@%dcheck%d_when%d:",check_count,check_num,when_num);
   		gen_cmp(compared_idx,(yyvsp[0].i));
@@ -1779,11 +1780,11 @@ yyreduce:
   		code("\n@%dcheck%d_when%d_body:", check_count,check_num,when_num-1);
   		
   	}
-#line 1783 "micko.tab.c" /* yacc.c:1646  */
+#line 1784 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 433 "micko.y" /* yacc.c:1646  */
+#line 434 "micko.y" /* yacc.c:1646  */
     {
   		if(get_type((yyvsp[-3].i)) != temp_var)
   			err("check exp and const exp aren't the same type");
@@ -1795,26 +1796,26 @@ yyreduce:
   		else
   			set_atr2((yyvsp[-3].i),1); 
   	}
-#line 1799 "micko.tab.c" /* yacc.c:1646  */
+#line 1800 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 448 "micko.y" /* yacc.c:1646  */
+#line 449 "micko.y" /* yacc.c:1646  */
     {
 		if(get_type(fcall_idx) != VOID)
 			err("Function '%s' has a return value", get_name(fcall_idx));
 	}
-#line 1808 "micko.tab.c" /* yacc.c:1646  */
+#line 1809 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 455 "micko.y" /* yacc.c:1646  */
+#line 456 "micko.y" /* yacc.c:1646  */
     {(yyval.i) = ++lab_para_num;}
-#line 1814 "micko.tab.c" /* yacc.c:1646  */
+#line 1815 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 55:
-#line 456 "micko.y" /* yacc.c:1646  */
+#line 457 "micko.y" /* yacc.c:1646  */
     {	
 		int idx = lookup_symbol((yyvsp[-8].s), VAR|PAR);
 		if(idx == NO_INDEX || idx < fun_idx){
@@ -1855,20 +1856,20 @@ yyreduce:
 		gen_sym_name(idx);
 		
 	}
-#line 1859 "micko.tab.c" /* yacc.c:1646  */
+#line 1860 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 56:
-#line 496 "micko.y" /* yacc.c:1646  */
+#line 497 "micko.y" /* yacc.c:1646  */
     {
 		code("\n\t\tJMP\t@para%d_begin", (yyvsp[-11].i));
 		code("\n@para%d_end:", (yyvsp[-11].i));
 	}
-#line 1868 "micko.tab.c" /* yacc.c:1646  */
+#line 1869 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 504 "micko.y" /* yacc.c:1646  */
+#line 505 "micko.y" /* yacc.c:1646  */
     {
 		int idx = lookup_symbol((yyvsp[-2].s), VAR|PAR);
 		if(idx == NO_INDEX || idx < fun_idx){
@@ -1892,11 +1893,11 @@ yyreduce:
 			gen_sym_name(idx);
 		}
 	}
-#line 1896 "micko.tab.c" /* yacc.c:1646  */
+#line 1897 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 59:
-#line 535 "micko.y" /* yacc.c:1646  */
+#line 536 "micko.y" /* yacc.c:1646  */
     {
 		int idx = lookup_symbol((yyvsp[-3].s), VAR|PAR);
 		if(idx == NO_INDEX || idx < fun_idx){
@@ -1913,19 +1914,19 @@ yyreduce:
 				
 		gen_mov((yyvsp[-1].i), idx);
 	}
-#line 1917 "micko.tab.c" /* yacc.c:1646  */
+#line 1918 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 60:
-#line 555 "micko.y" /* yacc.c:1646  */
+#line 556 "micko.y" /* yacc.c:1646  */
     {
   		(yyval.i) = (yyvsp[0].i);		
   	}
-#line 1925 "micko.tab.c" /* yacc.c:1646  */
+#line 1926 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 61:
-#line 560 "micko.y" /* yacc.c:1646  */
+#line 561 "micko.y" /* yacc.c:1646  */
     {
   		
   		if((yyvsp[0].i) == FUN_REG){
@@ -1936,11 +1937,11 @@ yyreduce:
   		}
   		
   	}
-#line 1940 "micko.tab.c" /* yacc.c:1646  */
+#line 1941 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 62:
-#line 570 "micko.y" /* yacc.c:1646  */
+#line 571 "micko.y" /* yacc.c:1646  */
     {
 	 	
 		int temp_reg;
@@ -1979,19 +1980,19 @@ yyreduce:
 		set_type((yyval.i), t1);
 		
 	}
-#line 1983 "micko.tab.c" /* yacc.c:1646  */
+#line 1984 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 63:
-#line 612 "micko.y" /* yacc.c:1646  */
+#line 613 "micko.y" /* yacc.c:1646  */
     {
   		(yyval.i) = (yyvsp[0].i);
   	}
-#line 1991 "micko.tab.c" /* yacc.c:1646  */
+#line 1992 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 64:
-#line 616 "micko.y" /* yacc.c:1646  */
+#line 617 "micko.y" /* yacc.c:1646  */
     {
 		(yyval.i) = lookup_symbol((yyvsp[0].s), VAR|PAR);
 		if((yyval.i) == NO_INDEX || (yyval.i) < fun_idx){
@@ -2000,25 +2001,25 @@ yyreduce:
 				err("'%s' undeclared", (yyvsp[0].s));
 		}
 	}
-#line 2004 "micko.tab.c" /* yacc.c:1646  */
+#line 2005 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 65:
-#line 625 "micko.y" /* yacc.c:1646  */
+#line 626 "micko.y" /* yacc.c:1646  */
     {
   		(yyval.i) = FUN_REG;
   	}
-#line 2012 "micko.tab.c" /* yacc.c:1646  */
+#line 2013 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 66:
-#line 629 "micko.y" /* yacc.c:1646  */
+#line 630 "micko.y" /* yacc.c:1646  */
     { (yyval.i) = (yyvsp[-1].i); }
-#line 2018 "micko.tab.c" /* yacc.c:1646  */
+#line 2019 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 67:
-#line 631 "micko.y" /* yacc.c:1646  */
+#line 632 "micko.y" /* yacc.c:1646  */
     {
 		int idx = lookup_symbol((yyvsp[-1].s), VAR|PAR);
 		if(idx == NO_INDEX || idx < fun_idx){
@@ -2046,11 +2047,11 @@ yyreduce:
 	  		gen_sym_name(idx);
 	  	}
 	}
-#line 2050 "micko.tab.c" /* yacc.c:1646  */
+#line 2051 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 68:
-#line 659 "micko.y" /* yacc.c:1646  */
+#line 660 "micko.y" /* yacc.c:1646  */
     {
   		(yyval.i) = take_reg();
   		set_type((yyval.i),get_type((yyvsp[-2].i)));
@@ -2074,23 +2075,23 @@ yyreduce:
   		gen_mov((yyvsp[-2].i),(yyval.i));
   		code("\n@usl_izr_end%d:", lab_usl_num);
   	}
-#line 2078 "micko.tab.c" /* yacc.c:1646  */
+#line 2079 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 69:
-#line 685 "micko.y" /* yacc.c:1646  */
+#line 686 "micko.y" /* yacc.c:1646  */
     { (yyval.i) = insert_literal((yyvsp[0].s), INT); }
-#line 2084 "micko.tab.c" /* yacc.c:1646  */
+#line 2085 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 70:
-#line 686 "micko.y" /* yacc.c:1646  */
+#line 687 "micko.y" /* yacc.c:1646  */
     { (yyval.i) = insert_literal((yyvsp[0].s), UINT); }
-#line 2090 "micko.tab.c" /* yacc.c:1646  */
+#line 2091 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 71:
-#line 691 "micko.y" /* yacc.c:1646  */
+#line 692 "micko.y" /* yacc.c:1646  */
     {
 		fcall_idx = lookup_symbol((yyvsp[0].s), FUN);
 		if(fcall_idx == NO_INDEX)
@@ -2099,17 +2100,17 @@ yyreduce:
 		if(num_exp_called_for_var == 1)
 			push_vars(var_num);
 	}
-#line 2103 "micko.tab.c" /* yacc.c:1646  */
+#line 2104 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 72:
-#line 699 "micko.y" /* yacc.c:1646  */
+#line 700 "micko.y" /* yacc.c:1646  */
     {arg_count = 0;}
-#line 2109 "micko.tab.c" /* yacc.c:1646  */
+#line 2110 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 73:
-#line 700 "micko.y" /* yacc.c:1646  */
+#line 701 "micko.y" /* yacc.c:1646  */
     {
 		if(get_atr1(fcall_idx) != (yyvsp[-1].i))
 			err("Wrong number of args to function '%s'", get_name(fcall_idx));
@@ -2117,7 +2118,8 @@ yyreduce:
 		code("\n\t\tCALL\t%s", get_name(fcall_idx));
 		
 		if((yyvsp[-1].i) > 0)
-			code("\n\t\tADDS\t%%15,$%d,%%15", (yyvsp[-1].i) * 4);
+			code("\n\t\tADDS\t%%15,$%d,%%15", ((yyvsp[-1].i) * 4));
+		
 			
 		if(num_exp_called_for_var == 1)
 			pop_vars(var_num);
@@ -2125,17 +2127,17 @@ yyreduce:
 		set_type(FUN_REG, get_type(fcall_idx));
 		(yyval.i) = FUN_REG;
 	}
-#line 2129 "micko.tab.c" /* yacc.c:1646  */
+#line 2131 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 74:
-#line 718 "micko.y" /* yacc.c:1646  */
+#line 720 "micko.y" /* yacc.c:1646  */
     { (yyval.i) = 0; }
-#line 2135 "micko.tab.c" /* yacc.c:1646  */
+#line 2137 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 75:
-#line 720 "micko.y" /* yacc.c:1646  */
+#line 722 "micko.y" /* yacc.c:1646  */
     {
 		arg_count++;
 		if(get_type(fcall_idx + arg_count) != get_type((yyvsp[0].i)))
@@ -2148,11 +2150,11 @@ yyreduce:
 	  
 		(yyval.i) = arg_count;
 	}
-#line 2152 "micko.tab.c" /* yacc.c:1646  */
+#line 2154 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 76:
-#line 733 "micko.y" /* yacc.c:1646  */
+#line 735 "micko.y" /* yacc.c:1646  */
     {
 		arg_count++;
 		if(get_type(fcall_idx + arg_count) != get_type((yyvsp[0].i)))
@@ -2165,51 +2167,51 @@ yyreduce:
 		
 		(yyval.i) = arg_count;
 	}
-#line 2169 "micko.tab.c" /* yacc.c:1646  */
+#line 2171 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 77:
-#line 749 "micko.y" /* yacc.c:1646  */
+#line 751 "micko.y" /* yacc.c:1646  */
     { code("\n@exit%d:", (yyvsp[0].i));}
-#line 2175 "micko.tab.c" /* yacc.c:1646  */
+#line 2177 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 78:
-#line 751 "micko.y" /* yacc.c:1646  */
+#line 753 "micko.y" /* yacc.c:1646  */
     { code("\n@exit%d:", (yyvsp[-2].i));}
-#line 2181 "micko.tab.c" /* yacc.c:1646  */
+#line 2183 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 79:
-#line 756 "micko.y" /* yacc.c:1646  */
+#line 758 "micko.y" /* yacc.c:1646  */
     {
   	(yyval.i) = ++lab_num;
   	code("\n@if%d:", lab_num);
   }
-#line 2190 "micko.tab.c" /* yacc.c:1646  */
+#line 2192 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 80:
-#line 760 "micko.y" /* yacc.c:1646  */
+#line 762 "micko.y" /* yacc.c:1646  */
     {
   	code("\n\t\t%s\t@false%d", opp_jumps[(yyvsp[0].i)], (yyvsp[-1].i));
   	code("\n@true%d:", (yyvsp[-1].i));
   }
-#line 2199 "micko.tab.c" /* yacc.c:1646  */
+#line 2201 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 81:
-#line 764 "micko.y" /* yacc.c:1646  */
+#line 766 "micko.y" /* yacc.c:1646  */
     {
   	code("\n\t\tJMP \t@exit%d", (yyvsp[-4].i));
   	code("\n@false%d:", (yyvsp[-4].i));
   	(yyval.i) = (yyvsp[-4].i);
   }
-#line 2209 "micko.tab.c" /* yacc.c:1646  */
+#line 2211 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 82:
-#line 773 "micko.y" /* yacc.c:1646  */
+#line 775 "micko.y" /* yacc.c:1646  */
     {
 		if(get_type((yyvsp[-2].i)) != get_type((yyvsp[0].i)))
 			err("invalid operands : relational operator");
@@ -2217,11 +2219,11 @@ yyreduce:
 		(yyval.i) = (yyvsp[-1].i) + ((get_type((yyvsp[-2].i)) - 1)*RELOP_NUMBER);
 		gen_cmp((yyvsp[-2].i),(yyvsp[0].i));
 	}
-#line 2221 "micko.tab.c" /* yacc.c:1646  */
+#line 2223 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 83:
-#line 784 "micko.y" /* yacc.c:1646  */
+#line 786 "micko.y" /* yacc.c:1646  */
     {
 		cur_fun_returned = 1;
 		if(get_type(fun_idx) != get_type((yyvsp[-1].i)))
@@ -2230,21 +2232,21 @@ yyreduce:
 		gen_mov((yyvsp[-1].i),FUN_REG);
 		code("\n\t\tJMP \t@%s_exit",get_name(fun_idx));
 	}
-#line 2234 "micko.tab.c" /* yacc.c:1646  */
+#line 2236 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 84:
-#line 793 "micko.y" /* yacc.c:1646  */
+#line 795 "micko.y" /* yacc.c:1646  */
     {
 		cur_fun_returned = 1;
 		if(get_type(fun_idx) != VOID)
 			warn("Function '%s' expected a return value", get_name(fun_idx));
 	}
-#line 2244 "micko.tab.c" /* yacc.c:1646  */
+#line 2246 "micko.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 2248 "micko.tab.c" /* yacc.c:1646  */
+#line 2250 "micko.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2472,7 +2474,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 809 "micko.y" /* yacc.c:1906  */
+#line 811 "micko.y" /* yacc.c:1906  */
 
 
 int yyerror(char *s) {

@@ -23,15 +23,19 @@ void pop_reg(){
 }
 
 void push_vars(int curr_var_num){
+	
 	int i = curr_var_num;
 	for(i; i > 0; i--)
 		code("\n\t\tPUSH\t-%d(%%14)", i*4);
+	
 }
 
 void pop_vars(int curr_var_num){
+	
 	int i = 1;
 	for(i; i <= curr_var_num; i++)
 		code("\n\t\tPOP \t-%d(%%14)", i*4);
+			
 } 
 
 // REGISTERS
