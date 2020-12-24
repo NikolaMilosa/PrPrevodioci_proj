@@ -524,17 +524,18 @@ assignment_statement
 num_exp
   : exp
   	{
-  		$$ = $1;  		
+  		$$ = $1;		
   	}
 
   | num_exp
   	{
   		
-  		if($1 == FUN_REG){
+  		if(get_kind($1) == REG){
   			saved_type = get_type($1);
   			pushed_reg++;
   			code("\n\tPUSH\t");
   			gen_sym_name($1);
+  			free_if_reg($1);
   		}
   		
   	} _AROP exp
@@ -547,16 +548,14 @@ num_exp
 			set_type(temp_reg,saved_type);
 			code("\n\tPOP \t");
 			gen_sym_name(temp_reg);
-			
-			$$ = FUN_REG;
 		}
 		else{
 			temp_reg = $1;
-			$$ = take_reg();
 		}
 			
 		if(get_type(temp_reg) != get_type($4))
 			err("invalid operands : arithmetic operation");
+			
 				
 		int t1 = get_type(temp_reg);
 		code("\n\t\t%s\t", ar_instructions[$3 + (t1 - 1) * AROP_NUMBER]);
@@ -565,12 +564,13 @@ num_exp
 		gen_sym_name($4);
 		code(",");
 		
-		free_if_reg($4);
 		free_if_reg(temp_reg);
+		free_if_reg($4);
 		
-		//$$ = take_reg();
+		$$ = take_reg();
 		gen_sym_name($$);
 		set_type($$, t1);
+		
 	}
   ;
 
@@ -593,7 +593,7 @@ exp
   		$$ = FUN_REG;
   	}
   | _LPAREN num_exp _RPAREN
-	{ $$ = $2;}
+	{ $$ = $2; }
   | _ID _INC_OP
 	{
 		int idx = lookup_symbol($1, VAR|PAR);
