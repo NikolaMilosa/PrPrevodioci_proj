@@ -227,9 +227,10 @@ body
   	} 
     variable_list
     {
+    	/*
     	if(var_num)
 	  		code("\n\t\tSUBS\t%%15,$%d,%%15", 4*var_num);
-	  		
+	  	*/	
 	  	code("\n@%s_body:", get_name(fun_idx));
 	  	
 	  	num_exp_called_for_var = 0;
@@ -283,6 +284,7 @@ var_poss
 		}          
 		else
 			err("redefinition of variable '%s'", $1);
+		code("\n\tSUBS\t%%15,$%d,%%15",4);
 	} 
   | _ID _ASSIGN num_exp
 	{
@@ -300,6 +302,7 @@ var_poss
 		}
 		
 		gen_mov($3,$$);
+		code("\n\tSUBS\t%%15,$%d,%%15",4);
 	}
   | var_poss _COMMA _ID 
 	{
@@ -311,6 +314,8 @@ var_poss
 		}
 		else
 			err("redefinition of '%s'", $3);
+			
+		code("\n\tSUBS\t%%15,$%d,%%15",4);
 	}
   | var_poss _COMMA _ID _ASSIGN num_exp
 	{
@@ -328,6 +333,7 @@ var_poss
 			err("redefinition of '%s'", $3);
 			
 		gen_mov($5, $$);
+		code("\n\tSUBS\t%%15,$%d,%%15",4);
 		
 		if(first_decled == 0){
 			first_decled = var_num;
