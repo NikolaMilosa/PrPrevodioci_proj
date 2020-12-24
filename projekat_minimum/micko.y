@@ -480,14 +480,12 @@ inc_statement
 			gen_sym_name(idx);
 			code(",$1,");
 			gen_sym_name(idx);
-			free_if_reg(idx);
 		}
 		else{
 			code("\n\t\tADDU\t");
 			gen_sym_name(idx);
 			code(",$1,");
 			gen_sym_name(idx);
-			free_if_reg(idx);
 		}
 	}
   ;
@@ -693,7 +691,7 @@ argument
 			
 		
 		code("\n\t\tPUSH\t");
-		gen_sym_name($3);	
+		gen_sym_name($3);
 		free_if_reg($3);
 		
 		$$ = arg_count;
