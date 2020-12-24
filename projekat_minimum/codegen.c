@@ -31,7 +31,7 @@ void push_vars(int curr_var_num){
 void pop_vars(int curr_var_num){
 	int i = 1;
 	for(i; i <= curr_var_num; i++)
-		code("\n\tPOP \t-%d(%%14)", i*4);
+		code("\n\t\tPOP \t-%d(%%14)", i*4);
 } 
 
 // REGISTERS

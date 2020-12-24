@@ -171,15 +171,12 @@ function
 		code("\n%s:", $2);
 		code("\n\t\tPUSH\t%%14");
 		code("\n\t\tMOV \t%%15,%%14");
-		if(strcmp(get_name(fun_idx),"main") != 0)
-			push_reg();
 	}
 	_LPAREN {param_count = 0;} parameter {set_atr1(fun_idx, param_count);} _RPAREN body
 	{
 		
 		clear_symbols(fun_idx + param_count + 1);
 		var_num = 0;
-		
 		
 		if(strcmp(get_name(fun_idx),"main") != 0)
 			pop_reg();
@@ -213,13 +210,19 @@ parameter
   ;
 
 body
-  : _LBRACKET { cur_fun_returned = 0; num_exp_called_for_var = 1;} 
+  : _LBRACKET 
+  	{ 
+  		cur_fun_returned = 0;
+  		num_exp_called_for_var = 1;
+  	} 
     variable_list
     {
     	if(var_num)
 	  		code("\n\t\tSUBS\t%%15,$%d,%%15", 4*var_num);
 	  		
 	  	code("\n@%s_body:", get_name(fun_idx));
+	  	if(strcmp(get_name(fun_idx),"main") != 0)
+			push_reg();
 	  	
 	  	num_exp_called_for_var = 0;
     } statement_list 
@@ -525,27 +528,28 @@ assignment_statement
 num_exp
   : exp
   	{
-  		$$ = $1;
+  		$$ = $1;  		
   	}
 
   | num_exp 
   	{
-  		if(get_kind($1) == REG){
+  		saved_type = get_type($1);
+  		if($1 == FUN_REG){
   			code("\n\t\tPUSH\t");
   			gen_sym_name($1);
-  			pushed_reg = 1;
-  			saved_type = get_type($1);
   			free_if_reg($1);
+  			pushed_reg++;
   		}
   	}_AROP exp
 	{	
+		
 		int temp_reg;
 		if(pushed_reg != 0){
-			pushed_reg = 0;
-			code("\n\t\tPOP \t");
 			temp_reg = take_reg();
+			code("\n\t\tPOP \t");
 			gen_sym_name(temp_reg);
 			set_type(temp_reg,saved_type);
+			pushed_reg--;
 		}
 		else
 			temp_reg = $1;
@@ -586,7 +590,7 @@ exp
 	}
   | function_call
   	{
-  		$$ = FUN_REG;
+  		$$ = $1;
   	}
   | _LPAREN num_exp _RPAREN
 	{ $$ = $2;}
