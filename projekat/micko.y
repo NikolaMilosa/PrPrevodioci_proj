@@ -113,8 +113,6 @@ program
 				if(get_atr2(i) == 1)
 					err("Function '%s' doesn't have a body", get_name(i));
 					
-		print_symtab();
-					
 	}
   ;
 
@@ -182,7 +180,6 @@ function
 		fun_idx = lookup_symbol($2, FUN);
 		if(fun_idx == NO_INDEX){
 			fun_idx = insert_symbol($2, FUN, $1, NO_ATR, NO_ATR);
-			print_symtab();
 		}
 		else{
 			if(get_atr2(fun_idx) == 0)

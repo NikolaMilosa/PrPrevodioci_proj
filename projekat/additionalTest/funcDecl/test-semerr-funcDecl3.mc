@@ -12,7 +12,7 @@ int main(){
 	
 	return a;
 }
-int fun1(int a, int b. int loseNazvano){          //Razlikuju se u imenu
+int fun1(int a, int b, int loseNazvano){          //Razlikuju se u imenu
 	return 5;
 }
 int fun2(int a, int b){
