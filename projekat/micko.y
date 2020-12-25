@@ -357,6 +357,8 @@ var_poss
 			err("redefinition of variable '%s'", $1);
 		}
 		
+		first_decled = var_num;
+		
 		gen_mov($3,$$);
 		code("\n\t\tSUBS\t%%15,$%d,%%15",4);
 	}

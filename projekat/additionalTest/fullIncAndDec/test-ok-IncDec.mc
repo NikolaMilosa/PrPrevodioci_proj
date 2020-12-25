@@ -3,15 +3,9 @@
 
 int main(){
 	
-	int a, b, c = 3;
+	int a = 2, b, c = 3;
 	
-	++a;
-	a--;
-	
-	a++;
-	--a;
-	
-	b = c++ + --c + a-- + ++a;
+	b = c++ + --c + ++a + a--;
 	
 	return b;
 	
