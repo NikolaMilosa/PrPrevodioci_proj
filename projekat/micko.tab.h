@@ -65,18 +65,19 @@ extern int yydebug;
     _WHERE = 275,
     _COMMA = 276,
     _INC_OP = 277,
-    _PARA = 278,
-    _PASO = 279,
-    _COLON = 280,
-    _CHECK = 281,
-    _WHEN = 282,
-    _FINISH = 283,
-    _LSBRAC = 284,
-    _RSBRAC = 285,
-    _ARROW = 286,
-    _OTHERWISE = 287,
-    _QMARK = 288,
-    ONLY_IF = 289
+    _DEC_OP = 278,
+    _PARA = 279,
+    _PASO = 280,
+    _COLON = 281,
+    _CHECK = 282,
+    _WHEN = 283,
+    _FINISH = 284,
+    _LSBRAC = 285,
+    _RSBRAC = 286,
+    _ARROW = 287,
+    _OTHERWISE = 288,
+    _QMARK = 289,
+    ONLY_IF = 290
   };
 #endif
 
@@ -90,7 +91,7 @@ union YYSTYPE
 	int i;
 	char *s;
 
-#line 94 "micko.tab.h" /* yacc.c:1909  */
+#line 95 "micko.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

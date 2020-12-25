@@ -81,6 +81,7 @@
 %token _WHERE
 %token _COMMA
 %token <i>_INC_OP
+%token _DEC_OP
 %token _PARA
 %token _PASO
 %token _COLON
@@ -339,7 +340,7 @@ var_poss
 		}          
 		else
 			err("redefinition of variable '%s'", $1);
-		code("\n\tSUBS\t%%15,$%d,%%15",4);
+		code("\n\t\tSUBS\t%%15,$%d,%%15",4);
 	} 
   | _ID _ASSIGN num_exp
 	{
@@ -357,7 +358,7 @@ var_poss
 		}
 		
 		gen_mov($3,$$);
-		code("\n\tSUBS\t%%15,$%d,%%15",4);
+		code("\n\t\tSUBS\t%%15,$%d,%%15",4);
 	}
   | var_poss _COMMA _ID 
 	{
@@ -370,7 +371,7 @@ var_poss
 		else
 			err("redefinition of '%s'", $3);
 			
-		code("\n\tSUBS\t%%15,$%d,%%15",4);
+		code("\n\t\tSUBS\t%%15,$%d,%%15",4);
 	}
   | var_poss _COMMA _ID _ASSIGN num_exp
 	{
@@ -388,7 +389,7 @@ var_poss
 			err("redefinition of '%s'", $3);
 			
 		gen_mov($5, $$);
-		code("\n\tSUBS\t%%15,$%d,%%15",4);
+		code("\n\t\tSUBS\t%%15,$%d,%%15",4);
 		
 		if(first_decled == 0){
 			first_decled = var_num;
@@ -408,7 +409,7 @@ statement
   | if_statement
   | return_statement
   | select_statement
-  | inc_statement
+  | fulUn_statement
   | para_statement
   | void_func
   | check_exp
@@ -561,7 +562,7 @@ para_statement
 	}
   ;
 
-inc_statement
+fulUn_statement
   : _ID _INC_OP _SEMICOLON
 	{
 		int idx = lookup_symbol($1, VAR|PAR);
@@ -586,6 +587,78 @@ inc_statement
 			gen_sym_name(idx);
 		}
 	}
+  | _INC_OP _ID _SEMICOLON
+  	{
+  		int idx = lookup_symbol($2, VAR|PAR);
+		if(idx == NO_INDEX || idx < fun_idx){
+			idx = lookup_symbol($2, GVAR);
+			if(idx == NO_INDEX)
+				err("undeclared '%s'", $2);
+		}
+			
+			
+		int t1 = get_type(idx);
+		if(t1 == INT){
+			code("\n\t\tADDS\t");
+			gen_sym_name(idx);
+			code(",$1,");
+			gen_sym_name(idx);
+		}
+		else{
+			code("\n\t\tADDU\t");
+			gen_sym_name(idx);
+			code(",$1,");
+			gen_sym_name(idx);
+		}
+  	}
+  | _ID _DEC_OP _SEMICOLON
+  	{
+  		int idx = lookup_symbol($1, VAR|PAR);
+		if(idx == NO_INDEX || idx < fun_idx){
+			idx = lookup_symbol($1, GVAR);
+			if(idx == NO_INDEX)
+				err("undeclared '%s'", $1);
+		}
+			
+			
+		int t1 = get_type(idx);
+		if(t1 == INT){
+			code("\n\t\tSUBS\t");
+			gen_sym_name(idx);
+			code(",$1,");
+			gen_sym_name(idx);
+		}
+		else{
+			code("\n\t\tSUBU\t");
+			gen_sym_name(idx);
+			code(",$1,");
+			gen_sym_name(idx);
+		}
+  	}
+  | _DEC_OP _ID _SEMICOLON
+  	{
+  		int idx = lookup_symbol($2, VAR|PAR);
+		if(idx == NO_INDEX || idx < fun_idx){
+			idx = lookup_symbol($2, GVAR);
+			if(idx == NO_INDEX)
+				err("undeclared '%s'", $2);
+		}
+			
+			
+		int t1 = get_type(idx);
+		if(t1 == INT){
+			code("\n\t\tSUBS\t");
+			gen_sym_name(idx);
+			code(",$1,");
+			gen_sym_name(idx);
+		}
+		else{
+			code("\n\t\tSUBU\t");
+			gen_sym_name(idx);
+			code(",$1,");
+			gen_sym_name(idx);
+		}
+  	}		
   ;
 
 compound_statement
@@ -717,6 +790,84 @@ exp
 	  		gen_sym_name(idx);
 	  	}
 	}
+  | _ID _DEC_OP
+  	{
+  		int idx = lookup_symbol($1, VAR|PAR);
+		if(idx == NO_INDEX || idx < fun_idx){
+			idx = lookup_symbol($1, GVAR);
+			if(idx == NO_INDEX)
+				err("'%s' undeclared", $1);
+		}
+		
+		$$ = take_reg();
+		set_type($$, get_type(idx));
+		
+		gen_mov(idx, $$);
+		
+		int t1 = get_type(idx);
+  		if(t1 == INT){
+	  		code("\n\t\tSUBS\t");
+	  		gen_sym_name(idx);
+	  		code(", $1, ");
+	  		gen_sym_name(idx);
+  		}  				
+  		else{
+  			code("\n\t\tSUBU\t");
+	  		gen_sym_name(idx);
+	  		code(", $1, ");
+	  		gen_sym_name(idx);
+	  	}
+  	}
+  | _DEC_OP _ID
+  	{
+  		int idx = lookup_symbol($2, VAR|PAR);
+		if(idx == NO_INDEX || idx < fun_idx){
+			idx = lookup_symbol($2, GVAR);
+			if(idx == NO_INDEX)
+				err("'%s' undeclared", $2);
+		}
+		
+		int t1 = get_type(idx);
+  		if(t1 == INT){
+	  		code("\n\t\tSUBS\t");
+	  		gen_sym_name(idx);
+	  		code(", $1, ");
+	  		gen_sym_name(idx);
+  		}  				
+  		else{
+  			code("\n\t\tSUBU\t");
+	  		gen_sym_name(idx);
+	  		code(", $1, ");
+	  		gen_sym_name(idx);
+	  	}
+	  	
+	  	$$ = idx;
+  	}
+  | _INC_OP _ID
+  	{
+  		int idx = lookup_symbol($2, VAR|PAR);
+		if(idx == NO_INDEX || idx < fun_idx){
+			idx = lookup_symbol($2, GVAR);
+			if(idx == NO_INDEX)
+				err("'%s' undeclared", $2);
+		}
+		
+		int t1 = get_type(idx);
+  		if(t1 == INT){
+	  		code("\n\t\tADDS\t");
+	  		gen_sym_name(idx);
+	  		code(", $1, ");
+	  		gen_sym_name(idx);
+  		}  				
+  		else{
+  			code("\n\t\tADDU\t");
+	  		gen_sym_name(idx);
+	  		code(", $1, ");
+	  		gen_sym_name(idx);
+	  	}
+	  	
+	  	$$ = idx;
+  	}
   | _LPAREN exp _RELOP exp _RPAREN _QMARK exp _COLON exp
   	{
   		$$ = take_reg();

@@ -45,6 +45,7 @@
 "+"                  { yylval.i = ADD; return _AROP; }
 "-"                  { yylval.i = SUB; return _AROP; }
 "++"                 { yylval.i = INC; return _INC_OP; }
+"--"                 { yylval.i = DEC; return _DEC_OP; }
 
 "<"                  { yylval.i = LT; return _RELOP; }
 ">"                  { yylval.i = GT; return _RELOP; }

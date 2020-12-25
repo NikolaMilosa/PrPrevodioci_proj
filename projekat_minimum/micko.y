@@ -53,6 +53,8 @@
 	int var_num_saver = 0;
 	int begin_id = 0;
 	int end_id = 0;
+	
+	int already_subbed = 0;
 %}
 
 %union{
@@ -228,9 +230,9 @@ body
     variable_list
     {
     	/*
-    	if(var_num)
-	  		code("\n\t\tSUBS\t%%15,$%d,%%15", 4*var_num);
-	  	*/	
+    	if((var_num - already_subbed) > 0)
+    		code("\n\tSUBS\t%%15,$%d,%%15", (var_num - already_subbed) * 4);
+	  	*/
 	  	code("\n@%s_body:", get_name(fun_idx));
 	  	
 	  	num_exp_called_for_var = 0;
@@ -284,7 +286,7 @@ var_poss
 		}          
 		else
 			err("redefinition of variable '%s'", $1);
-		code("\n\tSUBS\t%%15,$%d,%%15",4);
+		code("\n\t\tSUBS\t%%15,$%d,%%15",4);
 	} 
   | _ID _ASSIGN num_exp
 	{
@@ -301,8 +303,10 @@ var_poss
 			err("redefinition of variable '%s'", $1);
 		}
 		
+		first_decled = var_num;
+		
 		gen_mov($3,$$);
-		code("\n\tSUBS\t%%15,$%d,%%15",4);
+		code("\n\t\tSUBS\t%%15,$%d,%%15",4);
 	}
   | var_poss _COMMA _ID 
 	{
@@ -314,8 +318,7 @@ var_poss
 		}
 		else
 			err("redefinition of '%s'", $3);
-			
-		code("\n\tSUBS\t%%15,$%d,%%15",4);
+		code("\n\t\tSUBS\t%%15,$%d,%%15",4);
 	}
   | var_poss _COMMA _ID _ASSIGN num_exp
 	{
@@ -331,9 +334,9 @@ var_poss
 			err("assinging values aren't of the same type");
 		} else 
 			err("redefinition of '%s'", $3);
-			
+		
 		gen_mov($5, $$);
-		code("\n\tSUBS\t%%15,$%d,%%15",4);
+		code("\n\t\tSUBS\t%%15,$%d,%%15",4);
 		
 		if(first_decled == 0){
 			first_decled = var_num;
@@ -699,6 +702,12 @@ function_call
 		fcall_idx = lookup_symbol($1, FUN);
 		if(fcall_idx == NO_INDEX)
 			err("'%s' is not a function", $1);
+		/*	
+		if(num_exp_called_for_var == 1){
+			code("\n\tSUBS\t%%15,$%d,%%15", (var_num - already_subbed)*4);
+			already_subbed = var_num;
+		}
+		*/
 	}
     _LPAREN {arg_count = 0;} argument _RPAREN
 	{
