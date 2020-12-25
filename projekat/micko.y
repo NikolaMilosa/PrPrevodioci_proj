@@ -41,6 +41,18 @@
 	int lab_check_num = -1;
 	
 	int lab_usl_num = -1;
+	
+	int pushed_reg = 0;
+	int saved_type = 0;
+	
+	int num_exp_called_for_var = 0;
+	
+	int was_a_fun = 0;
+	
+	int first_decled = 0;
+	int var_num_saver = 0;
+	int begin_id = 0;
+	int end_id = 0;
 %}
 
 %union{
@@ -100,6 +112,9 @@ program
 			if(get_kind(i) == FUN)
 				if(get_atr2(i) == 1)
 					err("Function '%s' doesn't have a body", get_name(i));
+					
+		print_symtab();
+					
 	}
   ;
 
@@ -163,62 +178,71 @@ function
 			cur_fun_ret_t = UINT;
 		if($1 == NO_TYPE)
 			err("function '%s' doesn't have a return type",$2);
-			
 		
 		fun_idx = lookup_symbol($2, FUN);
-		if(fun_idx == NO_INDEX)
+		if(fun_idx == NO_INDEX){
 			fun_idx = insert_symbol($2, FUN, $1, NO_ATR, NO_ATR);
-		else
+			print_symtab();
+		}
+		else{
 			if(get_atr2(fun_idx) == 0)
 				err("redefinition of function '%s'", $2);
-			
+			if(get_type(fun_idx) != $1)
+				err("function '%s' being redefined doesn't have the same returning type", $2);				
+		}
 		
 	}
 	_LPAREN {param_count = 0;} parameter 
 	{
 		if(get_atr2(fun_idx) == 0)
 			set_atr1(fun_idx, param_count);
-	
-	} _RPAREN func_end
+	} _RPAREN func_end 
   ;
-  
-func_end
-  : { 
+ 
+func_end 
+  : 
+  	{
   		code("\n%s:", get_name(fun_idx));
 		code("\n\t\tPUSH\t%%14");
 		code("\n\t\tMOV \t%%15,%%14");
-	}
-  	body 
-  	{
-  		
+	} body
+	{
 		if(get_atr2(fun_idx) == 0)
 			clear_symbols(fun_idx + param_count + 1);
-			var_num = 0;
-			
-		if(get_atr2(fun_idx) == 1)
-			set_atr2(fun_idx,0);
+		var_num = 0;
 		
+		if(get_atr2(fun_idx) == 1){
+			set_atr2(fun_idx, 0);
+			if(get_atr1(fun_idx) != param_count)
+				err("The numbers of parameters in function declaration and definition aren't matching");
+		}
+			
 		code("\n@%s_exit:", get_name(fun_idx));
 		code("\n\t\tMOV \t%%14,%%15");
 		code("\n\t\tPOP \t%%14");
 		code("\n\t\tRET");
-		
 	}
   | _SEMICOLON
   	{
   		if(get_atr2(fun_idx) == 1)
   			err("Function is already declared");
   		set_atr2(fun_idx, 1);
+  		set_atr1(fun_idx, param_count);
   	}
-  ;
 
 parameter
-  : /* empty */ { set_atr1(fun_idx, 0); }
-  | _TYPE _ID
+  : 
+  | func_with_par
+  ;
+  
+  
+func_with_par
+  :  _TYPE _ID
 	{
 		if($1 == VOID)
 			err("parameters and variables cannot be of VOID type");
 		param_count++;
+		
 		if(get_atr2(fun_idx) == 0)
 			insert_symbol($2, PAR, $1, param_count, NO_ATR);
 		else{
@@ -230,7 +254,7 @@ parameter
 				err("Parameters in function declaration and definition aren't matching in name");
 		}
 	}
-  | parameter _COMMA _TYPE _ID
+  | func_with_par _COMMA _TYPE _ID
 	{
 		param_count++;
 		if(get_atr2(fun_idx) == 1){
@@ -254,18 +278,26 @@ parameter
   ;
 
 body
-  : _LBRACKET { cur_fun_returned = 0;} 
+  : _LBRACKET 
+  	{ 
+  		cur_fun_returned = 0;
+  		num_exp_called_for_var = 1;
+  	} 
     variable_list
     {
+    	/*
     	if(var_num)
 	  		code("\n\t\tSUBS\t%%15,$%d,%%15", 4*var_num);
-	  		
+	  	*/	
 	  	code("\n@%s_body:", get_name(fun_idx));
+	  	
+	  	num_exp_called_for_var = 0;
     } statement_list 
 	{
 		if(cur_fun_returned == 0){
 			if(get_type(fun_idx) != VOID)
 				warn("Function '%s' expected a return value", get_name(fun_idx));
+		
 	  }
 	}  _RBRACKET
   ;
@@ -278,10 +310,23 @@ variable_list
 variable
   : _TYPE 
 	{
+		first_decled = 0;
+		var_num_saver = var_num;
+		begin_id = get_last_element();
 		if($1 == VOID)
 			err("parameters and variables cannot be of VOID type"); 
 		temp_var = $1; 
 	} var_poss _SEMICOLON
+	{
+		
+		if(first_decled == var_num){
+			int i = 1;
+			for(i; i < (var_num - var_num_saver); i++)
+				if(get_kind(begin_id + i) == VAR)
+					gen_mov(end_id, begin_id + i);
+		}
+		
+	}
   ;
 
 var_poss 
@@ -297,9 +342,11 @@ var_poss
 		}          
 		else
 			err("redefinition of variable '%s'", $1);
+		code("\n\tSUBS\t%%15,$%d,%%15",4);
 	} 
   | _ID _ASSIGN num_exp
 	{
+		int idx;
 		if(lookup_symbol($1, VAR) == NO_INDEX){
 			int idx_param_exists_check = lookup_symbol($1, PAR);
 			if(idx_param_exists_check > fun_idx) 
@@ -313,6 +360,7 @@ var_poss
 		}
 		
 		gen_mov($3,$$);
+		code("\n\tSUBS\t%%15,$%d,%%15",4);
 	}
   | var_poss _COMMA _ID 
 	{
@@ -324,9 +372,12 @@ var_poss
 		}
 		else
 			err("redefinition of '%s'", $3);
+			
+		code("\n\tSUBS\t%%15,$%d,%%15",4);
 	}
   | var_poss _COMMA _ID _ASSIGN num_exp
 	{
+		int idx;
 		if(lookup_symbol($3, VAR) == NO_INDEX){
 			int idx_param_exists_check = lookup_symbol($3, PAR);
 			if(idx_param_exists_check > fun_idx) 
@@ -340,6 +391,13 @@ var_poss
 			err("redefinition of '%s'", $3);
 			
 		gen_mov($5, $$);
+		code("\n\tSUBS\t%%15,$%d,%%15",4);
+		
+		if(first_decled == 0){
+			first_decled = var_num;
+			end_id = $$;
+		}
+		
 	}
   ;
 statement_list
@@ -475,7 +533,7 @@ para_statement
 			err("in PASO exp, expression parameters aren't of the same type");
 		int lit1 = atoi(get_name($6));
 		int lit2 = atoi(get_name($8));
-		if(lit2 < lit1)
+		if(lit2 <= lit1)
 			err("in PASO exp, parameter 1 must be less than parameter 2");
 			
 		gen_mov($6,idx);
@@ -523,14 +581,12 @@ inc_statement
 			gen_sym_name(idx);
 			code(",$1,");
 			gen_sym_name(idx);
-			free_if_reg(idx);
 		}
 		else{
 			code("\n\t\tADDU\t");
 			gen_sym_name(idx);
 			code(",$1,");
 			gen_sym_name(idx);
-			free_if_reg(idx);
 		}
 	}
   ;
@@ -561,27 +617,66 @@ assignment_statement
 
 num_exp
   : exp
-  | num_exp _AROP exp
+  	{
+  		$$ = $1;		
+  	}
+
+  | num_exp
+  	{
+  		
+  		if($1 == FUN_REG){
+  			saved_type = get_type($1);
+  			pushed_reg++;
+  			code("\n\tPUSH\t");
+  			gen_sym_name($1);
+  		}
+  		
+  	} _AROP exp
 	{
-		if(get_type($1) != get_type($3))
+	 	
+		int temp_reg;
+		if(pushed_reg != 0){
+			pushed_reg--;
+			temp_reg = take_reg();
+			set_type(temp_reg,saved_type);
+			code("\n\tPOP \t");
+			gen_sym_name(temp_reg);
+			$$ = FUN_REG;
+			was_a_fun = 1;
+		}
+		else{
+			temp_reg = $1;
+		}
+			
+		if(get_type(temp_reg) != get_type($4))
 			err("invalid operands : arithmetic operation");
 			
-		int t1 = get_type($1);
-		code("\n\t\t%s\t", ar_instructions[$2 + (t1 - 1) * AROP_NUMBER]);
-		gen_sym_name($1);
+				
+		int t1 = get_type(temp_reg);
+		code("\n\t\t%s\t", ar_instructions[$3 + (t1 - 1) * AROP_NUMBER]);
+		gen_sym_name(temp_reg);
 		code(",");
-		gen_sym_name($3);
+		gen_sym_name($4);
 		code(",");
-		free_if_reg($3);
-		free_if_reg($1);
-		$$ = take_reg();
+		
+		free_if_reg(temp_reg);
+		free_if_reg($4);
+		
+		if(was_a_fun == 0)
+			$$ = take_reg();
+		else
+			was_a_fun = 0;
 		gen_sym_name($$);
 		set_type($$, t1);
+		
 	}
   ;
 
 exp
   : literal
+  	{
+  		$$ = $1;
+  	}
   | _ID
 	{
 		$$ = lookup_symbol($1, VAR|PAR);
@@ -589,12 +684,11 @@ exp
 			$$ = lookup_symbol($1, GVAR);
 			if($$ == NO_INDEX)
 				err("'%s' undeclared", $1);
-		} 
+		}
 	}
   | function_call
   	{
-  		$$ = take_reg();
-  		gen_mov(FUN_REG, $$);
+  		$$ = FUN_REG;
   	}
   | _LPAREN num_exp _RPAREN
 	{ $$ = $2; }
@@ -670,8 +764,9 @@ function_call
 			err("Wrong number of args to function '%s'", get_name(fcall_idx));
 			
 		code("\n\t\tCALL\t%s", get_name(fcall_idx));
+		
 		if($5 > 0)
-			code("\n\t\tADDS\t%%15,$%d,%%15", $5 * 4);	
+			code("\n\t\tADDS\t%%15,$%d,%%15", ($5 * 4));
 		
 		set_type(FUN_REG, get_type(fcall_idx));
 		$$ = FUN_REG;
@@ -701,7 +796,7 @@ argument
 			
 		
 		code("\n\t\tPUSH\t");
-		gen_sym_name($3);	
+		gen_sym_name($3);
 		free_if_reg($3);
 		
 		$$ = arg_count;
