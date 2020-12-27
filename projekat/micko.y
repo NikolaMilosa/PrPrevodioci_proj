@@ -95,7 +95,7 @@
 %token _QMARK
 
 %type <i> num_exp exp literal function_call argument var_poss rel_exp if_part 
-%type <i> variable g_var_poss
+%type <i> variable g_var_poss has_args
 
 %nonassoc ONLY_IF
 %nonassoc _ELSE
@@ -340,7 +340,11 @@ var_poss
 		}          
 		else
 			err("redefinition of variable '%s'", $1);
+		
+		code("\n\tMOV \t$0,");
+		gen_sym_name($$);
 		code("\n\t\tSUBS\t%%15,$%d,%%15",4);
+		
 	} 
   | _ID _ASSIGN num_exp
 	{
@@ -372,7 +376,10 @@ var_poss
 		}
 		else
 			err("redefinition of '%s'", $3);
-			
+		
+		
+		code("\n\tMOV \t$0,");
+		gen_sym_name($$);	
 		code("\n\t\tSUBS\t%%15,$%d,%%15",4);
 	}
   | var_poss _COMMA _ID _ASSIGN num_exp
@@ -925,7 +932,11 @@ function_call
 
 argument
   : /* empty */ { $$ = 0; }
-  | num_exp
+  | has_args { $$ = $1; }
+  ;
+  
+has_args
+  : num_exp
 	{
 		arg_count++;
 		if(get_type(fcall_idx + arg_count) != get_type($1))
@@ -938,7 +949,7 @@ argument
 	  
 		$$ = arg_count;
 	}
-  | argument _COMMA num_exp
+  | has_args _COMMA num_exp
 	{
 		arg_count++;
 		if(get_type(fcall_idx + arg_count) != get_type($3))
