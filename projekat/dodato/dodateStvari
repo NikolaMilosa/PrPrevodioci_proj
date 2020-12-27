@@ -1,6 +1,4 @@
 - Dodat operator za dekrementaciju
 - Omogućena upotreba i prefiksnih operatora za inc i dec
-- Globalne promenljive
-- VAR kljucna rec
 - deklaracija funkcije (kada je atr2 = 1, nije definisano telo)
 - ako nije dodeljena vrednost promenljivoj staviti na 0
