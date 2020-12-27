@@ -282,11 +282,7 @@ body
   		num_exp_called_for_var = 1;
   	} 
     variable_list
-    {
-    	/*
-    	if(var_num)
-	  		code("\n\t\tSUBS\t%%15,$%d,%%15", 4*var_num);
-	  	*/	
+    {	
 	  	code("\n@%s_body:", get_name(fun_idx));
 	  	
 	  	num_exp_called_for_var = 0;
