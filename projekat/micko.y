@@ -56,42 +56,112 @@
 	int end_id = 0;
 	
 	//Rad sa checkom za ugnjezdavanje:
-	struct node {
-		int data;
-		struct node *next;
+	int layer_count = -1;
+	//When saver:
+	struct whenNode {
+		int when_num;
+		int compared_idx;
+		struct whenNode *next;
 	};
 	
-	struct list {
-    	struct node *start; 
+	struct listW {
+    	struct whenNode *start; 
 	};
 	
-	void InitList(struct list *sList){
+	void InitListW(struct listW *sList){
     	sList->start = NULL;
 	};
 	
-	void push(struct list *sList, int data){
-		struct node *p;
-		p = malloc(sizeof(struct node));
-		p->data = data;
+	void pushW(struct listW *sList, int data, int ci){
+		struct whenNode *p;
+		p = malloc(sizeof(struct whenNode));
+		p->when_num = data;
+		p->compared_idx = ci;
 		p->next = sList->start;
 		sList->start = p;
 	};
 	
-	void pop(struct list *sList){
+	//Layer const:
+	struct layerNode {
+		int layer;
+		int check_in_layer;
+		struct layerNode *next;
+	};
+	
+	struct listL {
+		struct layerNode *start;
+	};
+	
+	void InitListL(struct listL *sList){
+		sList->start = NULL;
+	};
+	
+	void pushL(struct listL *sList, int layer, int check){
+		struct layerNode *p;
+		p = malloc(sizeof(struct layerNode));
+		p->layer = layer;
+		p->check_in_layer = check;
+		p->next = sList->start;
+		sList->start = p;
+	};
+	
+	//Popovanje whenova:
+	void popW(struct listW *sList){
 		if(sList->start != NULL) {
-		    struct node *p = sList->start;
+		    struct whenNode *p = sList->start;
 		    sList->start = sList->start->next;
 		    free(p);
 		}
 	};
-	//Sama lista za tipove
-	struct list TypeCheckList;
-	//Sama lista za when_count
-	struct list WhenCountList;
-	//Sama lista za check count
-	struct list CheckNumList;
-	//Sama lista za compared_idx
-	struct list ComparedList;
+	
+	//Lista za cuvanje whena:
+	struct listW WhenList;
+	//Lista za nivoe:
+	struct listL LayerList;
+	
+	void clearLayerList(struct listL *sList){
+		struct layerNode *current = sList->start;
+		struct layerNode *next; 
+		while(current != NULL) {
+			next = current->next;
+			free(current);
+			current = next;
+		}
+	};
+	
+	int findCheckInLayer(struct listL *sList, int lay){
+		int i = -1;
+		struct layerNode *curr = sList->start;
+		while(curr != NULL){
+			if(curr->layer == lay){
+				i = curr->check_in_layer;
+				break;
+			}
+			if(i != -1)
+				break;
+			curr = curr->next;
+		}
+		return i;
+	};
+	
+	void setCheckInLayer(struct listL *sList, int lay, int che){
+		struct layerNode *curr = sList->start;
+		while(curr != NULL){
+			if(curr->layer == lay){
+				curr->check_in_layer = che;
+				break;
+			}
+			curr = curr->next;
+		}
+	};
+	
+	void printLayers(struct listL *sList){
+		struct layerNode *curr = sList->start;
+		while(curr != NULL){
+			printf("Layer = %d, checks : %d\n", curr->layer, curr->check_in_layer);
+			curr = curr->next;
+		}
+	};
 	
 %}
 
@@ -145,10 +215,9 @@
 program
   : {
   		//Inicijalizacija lista za slucaj postojanja checka:
-		InitList(&TypeCheckList);
-		InitList(&WhenCountList);
-		InitList(&CheckNumList);
-		InitList(&ComparedList);
+		InitListW(&WhenList);
+		InitListL(&LayerList);
+		
   	}glob_vars function_list
 	{
 		if(lookup_symbol("main", FUN) == NO_INDEX)
@@ -476,43 +545,32 @@ check_exp
 			if(idx == NO_INDEX)
 				err("undeclared '%s'", $3);
 		}
-		//Sacuvan tip
-		push(&TypeCheckList, temp_var);
-		temp_var = get_type(idx);
-		//Sacuvan prethodni check_num
-		push(&CheckNumList, check_num);
-		check_num++;
-		//Sacuvan prethodni koji se poredi
-		push(&ComparedList, compared_idx);
-		compared_idx = idx;	
-		//Scauvan prethodni when
-		push(&WhenCountList, when_num);
-		when_num = 0;
-		if(check_num == 0)
-			check_count_prog++;
-		/*
-		if(currently_in_check == 0){
-			check_count++;
-			currently_in_check++;
+		
+		//Sredjivanje layer_counta i checka u layeru
+		layer_count++;
+		
+		int i = findCheckInLayer(&LayerList, layer_count);
+		if(i == -1){
+			pushL(&LayerList, layer_count, 0);
+			i = 0;
 		}
-		*/	
+			
+		check_num = i;		
+		
+		//Sredjivanje whena
+		pushW(&WhenList, when_num, compared_idx);
+		when_num = 0;
+		compared_idx = idx;
+		
 		checked_lits++;				
 	}
     _RSBRAC _LBRACKET { lit_last_in_mem = get_last_element(); } whenPart otherwise _RBRACKET
     {
     				
-    	struct node *p = TypeCheckList.start;
-    	temp_var = p->data;
-    	pop(&TypeCheckList);
-    	p = CheckNumList.start;
-    	check_num = p->data; 
-    	pop(&CheckNumList);
-    	p = WhenCountList.start;
-    	when_num = p->data;
-    	pop(&WhenCountList);
-    	p = ComparedList.start;
-    	compared_idx = p->data;
-    	pop(&ComparedList);   
+    	struct whenNode *p = WhenList.start;
+    	compared_idx = p->compared_idx;
+    	when_num = p->when_num;
+    	popW(&WhenList);  
     	
     	int i = get_last_element();
     	for(i; i >= FUN_REG; i--)
@@ -521,23 +579,27 @@ check_exp
     				set_atr2(i,checked_lits - 1);	
     				
     	checked_lits--;
+    	setCheckInLayer(&LayerList, layer_count, check_num + 1);
+    	
+    	layer_count--;
+    	check_num = findCheckInLayer(&LayerList,layer_count);
     }
   ;
 
 otherwise
   : {
-  		code("\n@%dcheck%d_when%d:",check_count_prog,check_num,when_num);
-  		code("\n@%dcheck%d_when%d_body:",check_count_prog,check_num,when_num);
-  		code("\n@%dcheck%d_end:",check_count_prog,check_num);
+  		code("\n@%dcheck%d_when%d:",layer_count,check_num,when_num);
+  		code("\n@%dcheck%d_when%d_body:",layer_count,check_num,when_num);
+  		code("\n@%dcheck%d_end:",layer_count,check_num);
   	}
   | _OTHERWISE 
   	{
-  		code("\n@%dcheck%d_when%d:",check_count_prog,check_num,when_num);
-  		code("\n@%dcheck%d_when%d_body:",check_count_prog,check_num,when_num);
+  		code("\n@%dcheck%d_when%d:",layer_count,check_num,when_num);
+  		code("\n@%dcheck%d_when%d_body:",layer_count,check_num,when_num);
   	}
   	_ARROW statement
   	{
-  		code("\n@%dcheck%d_end:",check_count_prog,check_num);
+  		code("\n@%dcheck%d_end:",layer_count,check_num);
   	}
   ;
   
@@ -549,22 +611,22 @@ whenPart
 finish_par
   :
   	{
-  		code("\n\t\tJMP\t@%dcheck%d_when%d_body",check_count_prog,check_num,when_num);
+  		code("\n\t\tJMP\t@%dcheck%d_when%d_body",layer_count,check_num,when_num);
   	}
   |  _FINISH _SEMICOLON
   	{
-  		code("\n\t\tJMP\t@%dcheck%d_end",check_count_prog,check_num);
+  		code("\n\t\tJMP\t@%dcheck%d_end",layer_count,check_num);
   	}
   ;
     
 when
   : _WHEN literal
   	{
-  		code("\n@%dcheck%d_when%d:",check_count_prog,check_num,when_num);
+  		code("\n@%dcheck%d_when%d:",layer_count,check_num,when_num);
   		gen_cmp(compared_idx,$2);
   		when_num++;
-  		code("\n\t\tJNE\t@%dcheck%d_when%d",check_count_prog,check_num,when_num);
-  		code("\n@%dcheck%d_when%d_body:",check_count_prog, check_num,when_num-1);
+  		code("\n\t\tJNE\t@%dcheck%d_when%d",layer_count,check_num,when_num);
+  		code("\n@%dcheck%d_when%d_body:",layer_count, check_num,when_num-1);
   		
   		if(get_atr2($2) == checked_lits)
   			err("all constants in check statement must be unique");
@@ -573,7 +635,7 @@ when
   		
   	} _ARROW statement
   	{
-  		if(get_type($2) != temp_var)
+  		if(get_type($2) != get_type(compared_idx))
   			err("check exp and const exp aren't the same type");
   	
   		if($2 < lit_last_in_mem)
@@ -1124,6 +1186,8 @@ int main() {
 
 	clear_symtab();
 	fclose(output);
+	
+	//clearLayerList(&LayerList);
 
 	if(warning_count)
 		printf("\n%d warning(s).\n", warning_count);
