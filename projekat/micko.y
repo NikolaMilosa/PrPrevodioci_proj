@@ -565,7 +565,6 @@ when
   		when_num++;
   		code("\n\t\tJNE\t@%dcheck%d_when%d",check_count_prog,check_num,when_num);
   		code("\n@%dcheck%d_when%d_body:",check_count_prog, check_num,when_num-1);
-  		print_symtab();
   		
   		if(get_atr2($2) == checked_lits)
   			err("all constants in check statement must be unique");

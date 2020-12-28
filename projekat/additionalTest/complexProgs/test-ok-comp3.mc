@@ -1,5 +1,5 @@
 //Testiranje kompleksnih programa:
-//RETURN: 5
+//RETURN: 33
 
 int fun1(int a, int b, int c){
 	int e;
@@ -28,7 +28,6 @@ int main(){
 			finish;
 		when 2u ->
 			b = fun1(1,2,3) + a;
-			finish;
 		when 3u ->
 			check[e]{
 				when 2u ->
