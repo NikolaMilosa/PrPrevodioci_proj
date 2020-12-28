@@ -462,7 +462,7 @@ void_func
   ;
 
 para_statement 
-  : _PARA _LPAREN {$<i>$ = ++lab_para_num;} _ID _ASSIGN literal _COLON literal _COLON _PASO literal _RPAREN 
+   : _PARA _LPAREN {$<i>$ = ++lab_para_num;} _ID _ASSIGN literal _COLON literal _COLON _PASO literal _RPAREN 
 	{	
 		int idx = lookup_symbol($4, VAR|PAR);
 		if(idx == NO_INDEX || idx < fun_idx){
@@ -491,6 +491,19 @@ para_statement
 		else
 			code("\n\t\tJGEU\t@para%d_end", $<i>3);
 			
+		
+		
+	} statement
+	{
+		int idx = lookup_symbol($4, VAR|PAR);
+		if(idx == NO_INDEX || idx < fun_idx){
+			idx = lookup_symbol($4, GVAR);
+			if(idx == NO_INDEX)
+				err("undeclared '%s'", $4);
+		}
+		
+		int t = get_type(idx);
+	
 		if(t == INT)
 			code("\n\t\tADDS\t");
 		else
@@ -502,8 +515,6 @@ para_statement
 		code(",");
 		gen_sym_name(idx);
 		
-	} statement
-	{
 		code("\n\t\tJMP\t@para%d_begin", $<i>3);
 		code("\n@para%d_end:", $<i>3);
 	}

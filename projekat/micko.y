@@ -33,9 +33,10 @@
 	int lit_last_in_mem;   //Vraca najmanji indeks literala koji se nalazio u listi simbola
 	int check_num = -1;
 	int when_num = 0;
-	int check_count = 0;
 	int compared_idx = 0;
-	int currently_in_check = 0;
+	int check_count_prog = 0;
+	
+	int checked_lits = 0;
 	
 	int lab_para_num = -1;
 	int lab_check_num = -1;
@@ -53,6 +54,45 @@
 	int var_num_saver = 0;
 	int begin_id = 0;
 	int end_id = 0;
+	
+	//Rad sa checkom za ugnjezdavanje:
+	struct node {
+		int data;
+		struct node *next;
+	};
+	
+	struct list {
+    	struct node *start; 
+	};
+	
+	void InitList(struct list *sList){
+    	sList->start = NULL;
+	};
+	
+	void push(struct list *sList, int data){
+		struct node *p;
+		p = malloc(sizeof(struct node));
+		p->data = data;
+		p->next = sList->start;
+		sList->start = p;
+	};
+	
+	void pop(struct list *sList){
+		if(sList->start != NULL) {
+		    struct node *p = sList->start;
+		    sList->start = sList->start->next;
+		    free(p);
+		}
+	};
+	//Sama lista za tipove
+	struct list TypeCheckList;
+	//Sama lista za when_count
+	struct list WhenCountList;
+	//Sama lista za check count
+	struct list CheckNumList;
+	//Sama lista za compared_idx
+	struct list ComparedList;
+	
 %}
 
 %union{
@@ -103,7 +143,13 @@
 %%
 
 program
-  : glob_vars function_list
+  : {
+  		//Inicijalizacija lista za slucaj postojanja checka:
+		InitList(&TypeCheckList);
+		InitList(&WhenCountList);
+		InitList(&CheckNumList);
+		InitList(&ComparedList);
+  	}glob_vars function_list
 	{
 		if(lookup_symbol("main", FUN) == NO_INDEX)
 			err("undefined reference to 'main'");
@@ -169,6 +215,7 @@ function_list
 function
   : _TYPE _ID 
 	{
+		
 		if($1 == VOID)
 			cur_fun_ret_t = VOID;
 		if($1 == INT)
@@ -337,7 +384,7 @@ var_poss
 		else
 			err("redefinition of variable '%s'", $1);
 		
-		code("\n\tMOV \t$0,");
+		code("\n\t\tMOV \t$0,");
 		gen_sym_name($$);
 		code("\n\t\tSUBS\t%%15,$%d,%%15",4);
 		
@@ -374,7 +421,7 @@ var_poss
 			err("redefinition of '%s'", $3);
 		
 		
-		code("\n\tMOV \t$0,");
+		code("\n\t\tMOV \t$0,");
 		gen_sym_name($$);	
 		code("\n\t\tSUBS\t%%15,$%d,%%15",4);
 	}
@@ -429,46 +476,68 @@ check_exp
 			if(idx == NO_INDEX)
 				err("undeclared '%s'", $3);
 		}
-		
+		//Sacuvan tip
+		push(&TypeCheckList, temp_var);
 		temp_var = get_type(idx);
-		
-		
-		compared_idx = idx;	
+		//Sacuvan prethodni check_num
+		push(&CheckNumList, check_num);
 		check_num++;
+		//Sacuvan prethodni koji se poredi
+		push(&ComparedList, compared_idx);
+		compared_idx = idx;	
+		//Scauvan prethodni when
+		push(&WhenCountList, when_num);
 		when_num = 0;
+		if(check_num == 0)
+			check_count_prog++;
+		/*
 		if(currently_in_check == 0){
 			check_count++;
 			currently_in_check++;
-		}					
+		}
+		*/	
+		checked_lits++;				
 	}
     _RSBRAC _LBRACKET { lit_last_in_mem = get_last_element(); } whenPart otherwise _RBRACKET
     {
-    	int i = lit_last_in_mem;
-    	for(i; i <= get_last_element(); i++)
-    		if(get_kind(i) == LIT)
-    			if(get_atr2(i) == 1)
-    				set_atr2(i,0);
     				
-    	check_num--;
-    	if(currently_in_check != 0)
-    		currently_in_check--;    	
+    	struct node *p = TypeCheckList.start;
+    	temp_var = p->data;
+    	pop(&TypeCheckList);
+    	p = CheckNumList.start;
+    	check_num = p->data; 
+    	pop(&CheckNumList);
+    	p = WhenCountList.start;
+    	when_num = p->data;
+    	pop(&WhenCountList);
+    	p = ComparedList.start;
+    	compared_idx = p->data;
+    	pop(&ComparedList);   
+    	
+    	int i = get_last_element();
+    	for(i; i >= FUN_REG; i--)
+    		if(get_kind(i) == LIT)
+    			if(get_atr2(i) == checked_lits)
+    				set_atr2(i,checked_lits - 1);	
+    				
+    	checked_lits--;
     }
   ;
 
 otherwise
   : {
-  		code("\n@%dcheck%d_when%d:",check_count,check_num,when_num);
-  		code("\n@%dcheck%d_when%d_body:",check_count,check_num,when_num);
-  		code("\n@%dcheck%d_end:",check_count,check_num);
+  		code("\n@%dcheck%d_when%d:",check_count_prog,check_num,when_num);
+  		code("\n@%dcheck%d_when%d_body:",check_count_prog,check_num,when_num);
+  		code("\n@%dcheck%d_end:",check_count_prog,check_num);
   	}
   | _OTHERWISE 
   	{
-  		code("\n@%dcheck%d_when%d:",check_count,check_num,when_num);
-  		code("\n@%dcheck%d_when%d_body:",check_count,check_num,when_num);
+  		code("\n@%dcheck%d_when%d:",check_count_prog,check_num,when_num);
+  		code("\n@%dcheck%d_when%d_body:",check_count_prog,check_num,when_num);
   	}
   	_ARROW statement
   	{
-  		code("\n@%dcheck%d_end:",check_count,check_num);
+  		code("\n@%dcheck%d_end:",check_count_prog,check_num);
   	}
   ;
   
@@ -480,22 +549,28 @@ whenPart
 finish_par
   :
   	{
-  		code("\n\t\tJMP\t@%dcheck%d_when%d_body",check_count,check_num,when_num);
+  		code("\n\t\tJMP\t@%dcheck%d_when%d_body",check_count_prog,check_num,when_num);
   	}
   |  _FINISH _SEMICOLON
   	{
-  		code("\n\t\tJMP\t@%dcheck%d_end",check_count, check_num);
+  		code("\n\t\tJMP\t@%dcheck%d_end",check_count_prog,check_num);
   	}
   ;
     
 when
   : _WHEN literal
   	{
-  		code("\n@%dcheck%d_when%d:",check_count,check_num,when_num);
+  		code("\n@%dcheck%d_when%d:",check_count_prog,check_num,when_num);
   		gen_cmp(compared_idx,$2);
   		when_num++;
-  		code("\n\t\tJNE\t@%dcheck%d_when%d",check_count,check_num,when_num);
-  		code("\n@%dcheck%d_when%d_body:", check_count,check_num,when_num-1);
+  		code("\n\t\tJNE\t@%dcheck%d_when%d",check_count_prog,check_num,when_num);
+  		code("\n@%dcheck%d_when%d_body:",check_count_prog, check_num,when_num-1);
+  		print_symtab();
+  		
+  		if(get_atr2($2) == checked_lits)
+  			err("all constants in check statement must be unique");
+  		else
+  			set_atr2($2,checked_lits);
   		
   	} _ARROW statement
   	{
@@ -503,11 +578,7 @@ when
   			err("check exp and const exp aren't the same type");
   	
   		if($2 < lit_last_in_mem)
-  			lit_last_in_mem = $2;
-  		if(get_atr2($2) == 1)
-  			err("all constants in check statement must be unique");
-  		else
-  			set_atr2($2,1); 
+  			lit_last_in_mem = $2; 
   	}
   ; 
 
@@ -549,6 +620,19 @@ para_statement
 		else
 			code("\n\t\tJGEU\t@para%d_end", $<i>3);
 			
+		
+		
+	} statement
+	{
+		int idx = lookup_symbol($4, VAR|PAR);
+		if(idx == NO_INDEX || idx < fun_idx){
+			idx = lookup_symbol($4, GVAR);
+			if(idx == NO_INDEX)
+				err("undeclared '%s'", $4);
+		}
+		
+		int t = get_type(idx);
+	
 		if(t == INT)
 			code("\n\t\tADDS\t");
 		else
@@ -560,8 +644,6 @@ para_statement
 		code(",");
 		gen_sym_name(idx);
 		
-	} statement
-	{
 		code("\n\t\tJMP\t@para%d_begin", $<i>3);
 		code("\n@para%d_end:", $<i>3);
 	}
