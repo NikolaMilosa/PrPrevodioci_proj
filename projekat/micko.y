@@ -61,6 +61,7 @@
 	struct whenNode {
 		int when_num;
 		int compared_idx;
+		int temp_var;
 		struct whenNode *next;
 	};
 	
@@ -72,13 +73,23 @@
     	sList->start = NULL;
 	};
 	
-	void pushW(struct listW *sList, int data, int ci){
+	void pushW(struct listW *sList, int data, int ci, int tv){
 		struct whenNode *p;
 		p = malloc(sizeof(struct whenNode));
 		p->when_num = data;
 		p->compared_idx = ci;
+		p->temp_var = tv;
 		p->next = sList->start;
 		sList->start = p;
+	};
+	
+	//Popovanje whenova:
+	void popW(struct listW *sList){
+		if(sList->start != NULL) {
+		    struct whenNode *p = sList->start;
+		    sList->start = sList->start->next;
+		    free(p);
+		}
 	};
 	
 	//Layer const:
@@ -105,15 +116,6 @@
 		sList->start = p;
 	};
 	
-	//Popovanje whenova:
-	void popW(struct listW *sList){
-		if(sList->start != NULL) {
-		    struct whenNode *p = sList->start;
-		    sList->start = sList->start->next;
-		    free(p);
-		}
-	};
-	
 	//Lista za cuvanje whena:
 	struct listW WhenList;
 	//Lista za nivoe:
@@ -128,7 +130,7 @@
 			current = next;
 		}
 	};
-	
+	//Pronalazi koliko checkova ima na tekucem nivou
 	int findCheckInLayer(struct listL *sList, int lay){
 		int i = -1;
 		struct layerNode *curr = sList->start;
@@ -143,7 +145,7 @@
 		}
 		return i;
 	};
-	
+	//Postavlja novu vrednost checka na nivou
 	void setCheckInLayer(struct listL *sList, int lay, int che){
 		struct layerNode *curr = sList->start;
 		while(curr != NULL){
@@ -155,12 +157,33 @@
 		}
 	};
 	
-	void printLayers(struct listL *sList){
-		struct layerNode *curr = sList->start;
-		while(curr != NULL){
-			printf("Layer = %d, checks : %d\n", curr->layer, curr->check_in_layer);
-			curr = curr->next;
+	//Rad sa literalima :
+	
+	//Matrica koja cuva sve po nivoima:
+	int matrix[64][64];
+	
+	//Matrica koja cuva popunjenost odredjenog nivoa:
+	int popunjenost[64];
+	
+	void cleanLay(int lay){
+		int i = 0;
+		for(i; i < popunjenost[lay]; i++)
+			matrix[i][lay] = 0;
+		popunjenost[lay] = 0;
+	};
+	
+	int checkInLay(int lay, int o){
+		int i = 0;
+		for(i; i < popunjenost[lay]; i++){
+			if(matrix[i][lay] == o)
+				return -1;
 		}
+		return 1;
+	};
+	
+	void addInLay(int lay, int o){
+		matrix[popunjenost[lay]][lay] = o;
+		popunjenost[lay]++;
 	};
 	
 %}
@@ -558,11 +581,11 @@ check_exp
 		check_num = i;		
 		
 		//Sredjivanje whena
-		pushW(&WhenList, when_num, compared_idx);
+		pushW(&WhenList, when_num, compared_idx, temp_var);
 		when_num = 0;
 		compared_idx = idx;
+		temp_var = get_type(idx);
 		
-		checked_lits++;				
 	}
     _RSBRAC _LBRACKET { lit_last_in_mem = get_last_element(); } whenPart otherwise _RBRACKET
     {
@@ -570,15 +593,11 @@ check_exp
     	struct whenNode *p = WhenList.start;
     	compared_idx = p->compared_idx;
     	when_num = p->when_num;
+    	temp_var = p->temp_var;
     	popW(&WhenList);  
     	
-    	int i = get_last_element();
-    	for(i; i >= FUN_REG; i--)
-    		if(get_kind(i) == LIT)
-    			if(get_atr2(i) == checked_lits)
-    				set_atr2(i,checked_lits - 1);	
-    				
-    	checked_lits--;
+    	cleanLay(layer_count);
+    	
     	setCheckInLayer(&LayerList, layer_count, check_num + 1);
     	
     	layer_count--;
@@ -628,18 +647,17 @@ when
   		code("\n\t\tJNE\t@%dcheck%d_when%d",layer_count,check_num,when_num);
   		code("\n@%dcheck%d_when%d_body:",layer_count, check_num,when_num-1);
   		
-  		if(get_atr2($2) == checked_lits)
-  			err("all constants in check statement must be unique");
+  		if(checkInLay(layer_count,$2) != -1)
+  			addInLay(layer_count,$2);
   		else
-  			set_atr2($2,checked_lits);
+  			err("all constants in check statement must be unique");
+  		
   		
   	} _ARROW statement
   	{
-  		if(get_type($2) != get_type(compared_idx))
+  		if(get_type($2) != temp_var)
   			err("check exp and const exp aren't the same type");
-  	
-  		if($2 < lit_last_in_mem)
-  			lit_last_in_mem = $2; 
+  	 
   	}
   ; 
 

@@ -18,7 +18,9 @@ int main(){
 					otherwise ->
 						b = 4;
 				}
-			}
+			} 
+		when 5u ->
+			a = 3;
 		otherwise ->
 			para(a = 0 : 5 : paso 1){
 				b = b + a;
