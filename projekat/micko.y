@@ -160,10 +160,10 @@
 	//Rad sa literalima :
 	
 	//Matrica koja cuva sve po nivoima:
-	int matrix[64][64];
+	int matrix[SYMBOL_TABLE_LENGTH][SYMBOL_TABLE_LENGTH];
 	
 	//Matrica koja cuva popunjenost odredjenog nivoa:
-	int popunjenost[64];
+	int popunjenost[SYMBOL_TABLE_LENGTH];
 	
 	void cleanLay(int lay){
 		int i = 0;
@@ -182,6 +182,8 @@
 	};
 	
 	void addInLay(int lay, int o){
+		if((popunjenost[lay] + 1) == SYMBOL_TABLE_LENGTH)
+			err("Maximum supported when's in a single check is : %d", SYMBOL_TABLE_LENGTH);
 		matrix[popunjenost[lay]][lay] = o;
 		popunjenost[lay]++;
 	};
@@ -571,6 +573,8 @@ check_exp
 		
 		//Sredjivanje layer_counta i checka u layeru
 		layer_count++;
+		if(layer_count == SYMBOL_TABLE_LENGTH)
+			err("Maximum supported layering : %d",SYMBOL_TABLE_LENGTH);
 		
 		int i = findCheckInLayer(&LayerList, layer_count);
 		if(i == -1){
