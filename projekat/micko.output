@@ -122,41 +122,46 @@ Grammar
    74    | _ID _DEC_OP
    75    | _DEC_OP _ID
    76    | _INC_OP _ID
-   77    | _LPAREN exp _RELOP exp _RPAREN _QMARK exp _COLON exp
 
-   78 literal: _INT_NUMBER
-   79        | _UINT_NUMBER
+   77 $@17: %empty
 
-   80 $@17: %empty
+   78 $@18: %empty
 
-   81 $@18: %empty
+   79 exp: _LPAREN rel_exp _RPAREN _QMARK $@17 exp $@18 _COLON exp
 
-   82 function_call: _ID $@17 _LPAREN $@18 argument _RPAREN
+   80 literal: _INT_NUMBER
+   81        | _UINT_NUMBER
 
-   83 argument: %empty
-   84         | has_args
+   82 $@19: %empty
 
-   85 has_args: num_exp
-   86         | has_args _COMMA num_exp
+   83 $@20: %empty
 
-   87 if_statement: if_part
-   88             | if_part _ELSE statement
+   84 function_call: _ID $@19 _LPAREN $@20 argument _RPAREN
 
-   89 @19: %empty
+   85 argument: %empty
+   86         | has_args
 
-   90 $@20: %empty
+   87 has_args: num_exp
+   88         | has_args _COMMA num_exp
 
-   91 if_part: _IF _LPAREN @19 rel_exp $@20 _RPAREN statement
+   89 if_statement: if_part
+   90             | if_part _ELSE statement
 
-   92 rel_exp: num_exp _RELOP num_exp
+   91 @21: %empty
 
-   93 return_statement: _RETURN num_exp _SEMICOLON
-   94                 | _RETURN _SEMICOLON
+   92 $@22: %empty
 
-   95 select_statement: _SELECT arg_select _FROM _ID _WHERE _LPAREN rel_exp _RPAREN _SEMICOLON
+   93 if_part: _IF _LPAREN @21 rel_exp $@22 _RPAREN statement
 
-   96 arg_select: _ID
-   97           | arg_select _COMMA _ID
+   94 rel_exp: num_exp _RELOP num_exp
+
+   95 return_statement: _RETURN num_exp _SEMICOLON
+   96                 | _RETURN _SEMICOLON
+
+   97 select_statement: _SELECT arg_select _FROM _ID _WHERE _LPAREN rel_exp _RPAREN _SEMICOLON
+
+   98 arg_select: _ID
+   99           | arg_select _COMMA _ID
 
 
 Terminals, with rules where they appear
@@ -164,30 +169,30 @@ Terminals, with rules where they appear
 $end (0) 0
 error (256)
 _TYPE (258) 5 13 19 20 28
-_IF (259) 91
-_ELSE (260) 88
-_RETURN (261) 93 94
+_IF (259) 93
+_ELSE (260) 90
+_RETURN (261) 95 96
 _ID (262) 6 7 13 19 20 29 30 31 32 46 59 60 61 62 63 65 70 73 74 75
-    76 82 95 96 97
-_INT_NUMBER (263) 78
-_UINT_NUMBER (264) 79
-_LPAREN (265) 13 59 72 77 82 91 95
-_RPAREN (266) 13 59 72 77 82 91 95
+    76 84 97 98 99
+_INT_NUMBER (263) 80
+_UINT_NUMBER (264) 81
+_LPAREN (265) 13 59 72 79 84 93 97
+_RPAREN (266) 13 59 72 79 84 93 97
 _LBRACKET (267) 24 46 64
 _RBRACKET (268) 24 46 64
 _ASSIGN (269) 30 32 59 65
-_SEMICOLON (270) 5 16 28 53 56 60 61 62 63 65 93 94 95
+_SEMICOLON (270) 5 16 28 53 56 60 61 62 63 65 95 96 97
 _AROP (271) 68
-_RELOP (272) 77 92
-_SELECT (273) 95
-_FROM (274) 95
-_WHERE (275) 95
-_COMMA (276) 7 20 31 32 86 97
+_RELOP (272) 94
+_SELECT (273) 97
+_FROM (274) 97
+_WHERE (275) 97
+_COMMA (276) 7 20 31 32 88 99
 _INC_OP (277) 60 61 73 76
 _DEC_OP (278) 62 63 74 75
 _PARA (279) 59
 _PASO (280) 59
-_COLON (281) 59 77
+_COLON (281) 59 79
 _CHECK (282) 46
 _WHEN (283) 55
 _FINISH (284) 53
@@ -195,7 +200,7 @@ _LSBRAC (285) 46
 _RSBRAC (286) 46
 _ARROW (287) 49 55
 _OTHERWISE (288) 49
-_QMARK (289) 77
+_QMARK (289) 79
 ONLY_IF (290)
 
 
@@ -250,7 +255,7 @@ var_poss (58)
 statement_list (59)
     on left: 33 34, on right: 24 34 64
 statement (60)
-    on left: 35 36 37 38 39 40 41 42 43, on right: 34 49 55 59 88 91
+    on left: 35 36 37 38 39 40 41 42 43, on right: 34 49 55 59 90 93
 check_exp (61)
     on left: 46, on right: 43
 $@10 (62)
@@ -284,39 +289,43 @@ compound_statement (75)
 assignment_statement (76)
     on left: 65, on right: 36
 num_exp (77)
-    on left: 66 68, on right: 30 32 65 68 72 85 86 92 93
+    on left: 66 68, on right: 30 32 65 68 72 87 88 94 95
 $@16 (78)
     on left: 67, on right: 68
 exp (79)
-    on left: 69 70 71 72 73 74 75 76 77, on right: 66 68 77
-literal (80)
-    on left: 78 79, on right: 55 59 69
-function_call (81)
-    on left: 82, on right: 56 71
-$@17 (82)
-    on left: 80, on right: 82
-$@18 (83)
-    on left: 81, on right: 82
-argument (84)
-    on left: 83 84, on right: 82
-has_args (85)
-    on left: 85 86, on right: 84 86
-if_statement (86)
-    on left: 87 88, on right: 37
-if_part (87)
-    on left: 91, on right: 87 88
-@19 (88)
-    on left: 89, on right: 91
-$@20 (89)
-    on left: 90, on right: 91
-rel_exp (90)
-    on left: 92, on right: 91 95
-return_statement (91)
-    on left: 93 94, on right: 38
-select_statement (92)
-    on left: 95, on right: 39
-arg_select (93)
-    on left: 96 97, on right: 95 97
+    on left: 69 70 71 72 73 74 75 76 79, on right: 66 68 79
+$@17 (80)
+    on left: 77, on right: 79
+$@18 (81)
+    on left: 78, on right: 79
+literal (82)
+    on left: 80 81, on right: 55 59 69
+function_call (83)
+    on left: 84, on right: 56 71
+$@19 (84)
+    on left: 82, on right: 84
+$@20 (85)
+    on left: 83, on right: 84
+argument (86)
+    on left: 85 86, on right: 84
+has_args (87)
+    on left: 87 88, on right: 86 88
+if_statement (88)
+    on left: 89 90, on right: 37
+if_part (89)
+    on left: 93, on right: 89 90
+@21 (90)
+    on left: 91, on right: 93
+$@22 (91)
+    on left: 92, on right: 93
+rel_exp (92)
+    on left: 94, on right: 79 93 97
+return_statement (93)
+    on left: 95 96, on right: 38
+select_statement (94)
+    on left: 97, on right: 39
+arg_select (95)
+    on left: 98 99, on right: 97 99
 
 
 State 0
@@ -714,15 +723,15 @@ State 42
 
 State 43
 
-   91 if_part: _IF . _LPAREN @19 rel_exp $@20 _RPAREN statement
+   93 if_part: _IF . _LPAREN @21 rel_exp $@22 _RPAREN statement
 
     _LPAREN  shift, and go to state 68
 
 
 State 44
 
-   93 return_statement: _RETURN . num_exp _SEMICOLON
-   94                 | _RETURN . _SEMICOLON
+   95 return_statement: _RETURN . num_exp _SEMICOLON
+   96                 | _RETURN . _SEMICOLON
 
     _ID           shift, and go to state 69
     _INT_NUMBER   shift, and go to state 70
@@ -743,15 +752,15 @@ State 45
    60 fulUn_statement: _ID . _INC_OP _SEMICOLON
    62                | _ID . _DEC_OP _SEMICOLON
    65 assignment_statement: _ID . _ASSIGN num_exp _SEMICOLON
-   82 function_call: _ID . $@17 _LPAREN $@18 argument _RPAREN
+   84 function_call: _ID . $@19 _LPAREN $@20 argument _RPAREN
 
     _ASSIGN  shift, and go to state 80
     _INC_OP  shift, and go to state 81
     _DEC_OP  shift, and go to state 82
 
-    $default  reduce using rule 80 ($@17)
+    $default  reduce using rule 82 ($@19)
 
-    $@17  go to state 83
+    $@19  go to state 83
 
 
 State 46
@@ -765,7 +774,7 @@ State 46
 
 State 47
 
-   95 select_statement: _SELECT . arg_select _FROM _ID _WHERE _LPAREN rel_exp _RPAREN _SEMICOLON
+   97 select_statement: _SELECT . arg_select _FROM _ID _WHERE _LPAREN rel_exp _RPAREN _SEMICOLON
 
     _ID  shift, and go to state 85
 
@@ -872,12 +881,12 @@ State 61
 
 State 62
 
-   87 if_statement: if_part .
-   88             | if_part . _ELSE statement
+   89 if_statement: if_part .
+   90             | if_part . _ELSE statement
 
     _ELSE  shift, and go to state 93
 
-    $default  reduce using rule 87 (if_statement)
+    $default  reduce using rule 89 (if_statement)
 
 
 State 63
@@ -928,11 +937,11 @@ State 67
 
 State 68
 
-   91 if_part: _IF _LPAREN . @19 rel_exp $@20 _RPAREN statement
+   93 if_part: _IF _LPAREN . @21 rel_exp $@22 _RPAREN statement
 
-    $default  reduce using rule 89 (@19)
+    $default  reduce using rule 91 (@21)
 
-    @19  go to state 96
+    @21  go to state 96
 
 
 State 69
@@ -940,35 +949,35 @@ State 69
    70 exp: _ID .
    73    | _ID . _INC_OP
    74    | _ID . _DEC_OP
-   82 function_call: _ID . $@17 _LPAREN $@18 argument _RPAREN
+   84 function_call: _ID . $@19 _LPAREN $@20 argument _RPAREN
 
     _INC_OP  shift, and go to state 97
     _DEC_OP  shift, and go to state 98
 
-    _LPAREN   reduce using rule 80 ($@17)
+    _LPAREN   reduce using rule 82 ($@19)
     $default  reduce using rule 70 (exp)
 
-    $@17  go to state 83
+    $@19  go to state 83
 
 
 State 70
 
-   78 literal: _INT_NUMBER .
+   80 literal: _INT_NUMBER .
 
-    $default  reduce using rule 78 (literal)
+    $default  reduce using rule 80 (literal)
 
 
 State 71
 
-   79 literal: _UINT_NUMBER .
+   81 literal: _UINT_NUMBER .
 
-    $default  reduce using rule 79 (literal)
+    $default  reduce using rule 81 (literal)
 
 
 State 72
 
    72 exp: _LPAREN . num_exp _RPAREN
-   77    | _LPAREN . exp _RELOP exp _RPAREN _QMARK exp _COLON exp
+   79    | _LPAREN . rel_exp _RPAREN _QMARK $@17 exp $@18 _COLON exp
 
     _ID           shift, and go to state 69
     _INT_NUMBER   shift, and go to state 70
@@ -978,16 +987,17 @@ State 72
     _DEC_OP       shift, and go to state 75
 
     num_exp        go to state 99
-    exp            go to state 100
+    exp            go to state 77
     literal        go to state 78
     function_call  go to state 79
+    rel_exp        go to state 100
 
 
 State 73
 
-   94 return_statement: _RETURN _SEMICOLON .
+   96 return_statement: _RETURN _SEMICOLON .
 
-    $default  reduce using rule 94 (return_statement)
+    $default  reduce using rule 96 (return_statement)
 
 
 State 74
@@ -1007,7 +1017,7 @@ State 75
 State 76
 
    68 num_exp: num_exp . $@16 _AROP exp
-   93 return_statement: _RETURN num_exp . _SEMICOLON
+   95 return_statement: _RETURN num_exp . _SEMICOLON
 
     _SEMICOLON  shift, and go to state 103
 
@@ -1070,7 +1080,7 @@ State 82
 
 State 83
 
-   82 function_call: _ID $@17 . _LPAREN $@18 argument _RPAREN
+   84 function_call: _ID $@19 . _LPAREN $@20 argument _RPAREN
 
     _LPAREN  shift, and go to state 108
 
@@ -1107,15 +1117,15 @@ State 84
 
 State 85
 
-   96 arg_select: _ID .
+   98 arg_select: _ID .
 
-    $default  reduce using rule 96 (arg_select)
+    $default  reduce using rule 98 (arg_select)
 
 
 State 86
 
-   95 select_statement: _SELECT arg_select . _FROM _ID _WHERE _LPAREN rel_exp _RPAREN _SEMICOLON
-   97 arg_select: arg_select . _COMMA _ID
+   97 select_statement: _SELECT arg_select . _FROM _ID _WHERE _LPAREN rel_exp _RPAREN _SEMICOLON
+   99 arg_select: arg_select . _COMMA _ID
 
     _FROM   shift, and go to state 110
     _COMMA  shift, and go to state 111
@@ -1167,7 +1177,7 @@ State 92
 
 State 93
 
-   88 if_statement: if_part _ELSE . statement
+   90 if_statement: if_part _ELSE . statement
 
     _IF        shift, and go to state 43
     _RETURN    shift, and go to state 44
@@ -1216,7 +1226,7 @@ State 95
 
 State 96
 
-   91 if_part: _IF _LPAREN @19 . rel_exp $@20 _RPAREN statement
+   93 if_part: _IF _LPAREN @21 . rel_exp $@22 _RPAREN statement
 
     _ID           shift, and go to state 69
     _INT_NUMBER   shift, and go to state 70
@@ -1250,8 +1260,10 @@ State 99
 
    68 num_exp: num_exp . $@16 _AROP exp
    72 exp: _LPAREN num_exp . _RPAREN
+   94 rel_exp: num_exp . _RELOP num_exp
 
     _RPAREN  shift, and go to state 120
+    _RELOP   shift, and go to state 121
 
     $default  reduce using rule 67 ($@16)
 
@@ -1260,12 +1272,9 @@ State 99
 
 State 100
 
-   66 num_exp: exp .
-   77 exp: _LPAREN exp . _RELOP exp _RPAREN _QMARK exp _COLON exp
+   79 exp: _LPAREN rel_exp . _RPAREN _QMARK $@17 exp $@18 _COLON exp
 
-    _RELOP  shift, and go to state 121
-
-    $default  reduce using rule 66 (num_exp)
+    _RPAREN  shift, and go to state 122
 
 
 State 101
@@ -1284,16 +1293,16 @@ State 102
 
 State 103
 
-   93 return_statement: _RETURN num_exp _SEMICOLON .
+   95 return_statement: _RETURN num_exp _SEMICOLON .
 
-    $default  reduce using rule 93 (return_statement)
+    $default  reduce using rule 95 (return_statement)
 
 
 State 104
 
    68 num_exp: num_exp $@16 . _AROP exp
 
-    _AROP  shift, and go to state 122
+    _AROP  shift, and go to state 123
 
 
 State 105
@@ -1301,7 +1310,7 @@ State 105
    65 assignment_statement: _ID _ASSIGN num_exp . _SEMICOLON
    68 num_exp: num_exp . $@16 _AROP exp
 
-    _SEMICOLON  shift, and go to state 123
+    _SEMICOLON  shift, and go to state 124
 
     $default  reduce using rule 67 ($@16)
 
@@ -1324,11 +1333,11 @@ State 107
 
 State 108
 
-   82 function_call: _ID $@17 _LPAREN . $@18 argument _RPAREN
+   84 function_call: _ID $@19 _LPAREN . $@20 argument _RPAREN
 
-    $default  reduce using rule 81 ($@18)
+    $default  reduce using rule 83 ($@20)
 
-    $@18  go to state 124
+    $@20  go to state 125
 
 
 State 109
@@ -1340,16 +1349,16 @@ State 109
 
 State 110
 
-   95 select_statement: _SELECT arg_select _FROM . _ID _WHERE _LPAREN rel_exp _RPAREN _SEMICOLON
+   97 select_statement: _SELECT arg_select _FROM . _ID _WHERE _LPAREN rel_exp _RPAREN _SEMICOLON
 
-    _ID  shift, and go to state 125
+    _ID  shift, and go to state 126
 
 
 State 111
 
-   97 arg_select: arg_select _COMMA . _ID
+   99 arg_select: arg_select _COMMA . _ID
 
-    _ID  shift, and go to state 126
+    _ID  shift, and go to state 127
 
 
 State 112
@@ -1370,7 +1379,7 @@ State 114
 
    59 para_statement: _PARA _LPAREN @14 . _ID _ASSIGN literal _COLON literal _COLON _PASO literal _RPAREN $@15 statement
 
-    _ID  shift, and go to state 127
+    _ID  shift, and go to state 128
 
 
 State 115
@@ -1379,14 +1388,14 @@ State 115
 
     $default  reduce using rule 44 ($@10)
 
-    $@10  go to state 128
+    $@10  go to state 129
 
 
 State 116
 
-   88 if_statement: if_part _ELSE statement .
+   90 if_statement: if_part _ELSE statement .
 
-    $default  reduce using rule 88 (if_statement)
+    $default  reduce using rule 90 (if_statement)
 
 
 State 117
@@ -1400,7 +1409,7 @@ State 117
     _INC_OP       shift, and go to state 74
     _DEC_OP       shift, and go to state 75
 
-    num_exp        go to state 129
+    num_exp        go to state 130
     exp            go to state 77
     literal        go to state 78
     function_call  go to state 79
@@ -1409,9 +1418,9 @@ State 117
 State 118
 
    68 num_exp: num_exp . $@16 _AROP exp
-   92 rel_exp: num_exp . _RELOP num_exp
+   94 rel_exp: num_exp . _RELOP num_exp
 
-    _RELOP  shift, and go to state 130
+    _RELOP  shift, and go to state 121
 
     $default  reduce using rule 67 ($@16)
 
@@ -1420,11 +1429,11 @@ State 118
 
 State 119
 
-   91 if_part: _IF _LPAREN @19 rel_exp . $@20 _RPAREN statement
+   93 if_part: _IF _LPAREN @21 rel_exp . $@22 _RPAREN statement
 
-    $default  reduce using rule 90 ($@20)
+    $default  reduce using rule 92 ($@22)
 
-    $@20  go to state 131
+    $@22  go to state 131
 
 
 State 120
@@ -1436,7 +1445,7 @@ State 120
 
 State 121
 
-   77 exp: _LPAREN exp _RELOP . exp _RPAREN _QMARK exp _COLON exp
+   94 rel_exp: num_exp _RELOP . num_exp
 
     _ID           shift, and go to state 69
     _INT_NUMBER   shift, and go to state 70
@@ -1445,12 +1454,20 @@ State 121
     _INC_OP       shift, and go to state 74
     _DEC_OP       shift, and go to state 75
 
-    exp            go to state 132
+    num_exp        go to state 132
+    exp            go to state 77
     literal        go to state 78
     function_call  go to state 79
 
 
 State 122
+
+   79 exp: _LPAREN rel_exp _RPAREN . _QMARK $@17 exp $@18 _COLON exp
+
+    _QMARK  shift, and go to state 133
+
+
+State 123
 
    68 num_exp: num_exp $@16 _AROP . exp
 
@@ -1461,21 +1478,21 @@ State 122
     _INC_OP       shift, and go to state 74
     _DEC_OP       shift, and go to state 75
 
-    exp            go to state 133
+    exp            go to state 134
     literal        go to state 78
     function_call  go to state 79
 
 
-State 123
+State 124
 
    65 assignment_statement: _ID _ASSIGN num_exp _SEMICOLON .
 
     $default  reduce using rule 65 (assignment_statement)
 
 
-State 124
+State 125
 
-   82 function_call: _ID $@17 _LPAREN $@18 . argument _RPAREN
+   84 function_call: _ID $@19 _LPAREN $@20 . argument _RPAREN
 
     _ID           shift, and go to state 69
     _INT_NUMBER   shift, and go to state 70
@@ -1484,45 +1501,45 @@ State 124
     _INC_OP       shift, and go to state 74
     _DEC_OP       shift, and go to state 75
 
-    $default  reduce using rule 83 (argument)
+    $default  reduce using rule 85 (argument)
 
-    num_exp        go to state 134
+    num_exp        go to state 135
     exp            go to state 77
     literal        go to state 78
     function_call  go to state 79
-    argument       go to state 135
-    has_args       go to state 136
-
-
-State 125
-
-   95 select_statement: _SELECT arg_select _FROM _ID . _WHERE _LPAREN rel_exp _RPAREN _SEMICOLON
-
-    _WHERE  shift, and go to state 137
+    argument       go to state 136
+    has_args       go to state 137
 
 
 State 126
 
-   97 arg_select: arg_select _COMMA _ID .
+   97 select_statement: _SELECT arg_select _FROM _ID . _WHERE _LPAREN rel_exp _RPAREN _SEMICOLON
 
-    $default  reduce using rule 97 (arg_select)
+    _WHERE  shift, and go to state 138
 
 
 State 127
 
-   59 para_statement: _PARA _LPAREN @14 _ID . _ASSIGN literal _COLON literal _COLON _PASO literal _RPAREN $@15 statement
+   99 arg_select: arg_select _COMMA _ID .
 
-    _ASSIGN  shift, and go to state 138
+    $default  reduce using rule 99 (arg_select)
 
 
 State 128
 
-   46 check_exp: _CHECK _LSBRAC _ID $@10 . _RSBRAC _LBRACKET $@11 whenPart otherwise _RBRACKET
+   59 para_statement: _PARA _LPAREN @14 _ID . _ASSIGN literal _COLON literal _COLON _PASO literal _RPAREN $@15 statement
 
-    _RSBRAC  shift, and go to state 139
+    _ASSIGN  shift, and go to state 139
 
 
 State 129
+
+   46 check_exp: _CHECK _LSBRAC _ID $@10 . _RSBRAC _LBRACKET $@11 whenPart otherwise _RBRACKET
+
+    _RSBRAC  shift, and go to state 140
+
+
+State 130
 
    32 var_poss: var_poss _COMMA _ID _ASSIGN num_exp .
    68 num_exp: num_exp . $@16 _AROP exp
@@ -1533,80 +1550,76 @@ State 129
     $@16  go to state 104
 
 
-State 130
-
-   92 rel_exp: num_exp _RELOP . num_exp
-
-    _ID           shift, and go to state 69
-    _INT_NUMBER   shift, and go to state 70
-    _UINT_NUMBER  shift, and go to state 71
-    _LPAREN       shift, and go to state 72
-    _INC_OP       shift, and go to state 74
-    _DEC_OP       shift, and go to state 75
-
-    num_exp        go to state 140
-    exp            go to state 77
-    literal        go to state 78
-    function_call  go to state 79
-
-
 State 131
 
-   91 if_part: _IF _LPAREN @19 rel_exp $@20 . _RPAREN statement
+   93 if_part: _IF _LPAREN @21 rel_exp $@22 . _RPAREN statement
 
     _RPAREN  shift, and go to state 141
 
 
 State 132
 
-   77 exp: _LPAREN exp _RELOP exp . _RPAREN _QMARK exp _COLON exp
+   68 num_exp: num_exp . $@16 _AROP exp
+   94 rel_exp: num_exp _RELOP num_exp .
 
-    _RPAREN  shift, and go to state 142
+    _RPAREN   reduce using rule 94 (rel_exp)
+    $default  reduce using rule 67 ($@16)
+
+    $@16  go to state 104
 
 
 State 133
+
+   79 exp: _LPAREN rel_exp _RPAREN _QMARK . $@17 exp $@18 _COLON exp
+
+    $default  reduce using rule 77 ($@17)
+
+    $@17  go to state 142
+
+
+State 134
 
    68 num_exp: num_exp $@16 _AROP exp .
 
     $default  reduce using rule 68 (num_exp)
 
 
-State 134
+State 135
 
    68 num_exp: num_exp . $@16 _AROP exp
-   85 has_args: num_exp .
+   87 has_args: num_exp .
 
     _AROP     reduce using rule 67 ($@16)
-    $default  reduce using rule 85 (has_args)
+    $default  reduce using rule 87 (has_args)
 
     $@16  go to state 104
 
 
-State 135
+State 136
 
-   82 function_call: _ID $@17 _LPAREN $@18 argument . _RPAREN
+   84 function_call: _ID $@19 _LPAREN $@20 argument . _RPAREN
 
     _RPAREN  shift, and go to state 143
 
 
-State 136
+State 137
 
-   84 argument: has_args .
-   86 has_args: has_args . _COMMA num_exp
+   86 argument: has_args .
+   88 has_args: has_args . _COMMA num_exp
 
     _COMMA  shift, and go to state 144
 
-    $default  reduce using rule 84 (argument)
+    $default  reduce using rule 86 (argument)
 
 
-State 137
+State 138
 
-   95 select_statement: _SELECT arg_select _FROM _ID _WHERE . _LPAREN rel_exp _RPAREN _SEMICOLON
+   97 select_statement: _SELECT arg_select _FROM _ID _WHERE . _LPAREN rel_exp _RPAREN _SEMICOLON
 
     _LPAREN  shift, and go to state 145
 
 
-State 138
+State 139
 
    59 para_statement: _PARA _LPAREN @14 _ID _ASSIGN . literal _COLON literal _COLON _PASO literal _RPAREN $@15 statement
 
@@ -1616,27 +1629,16 @@ State 138
     literal  go to state 146
 
 
-State 139
+State 140
 
    46 check_exp: _CHECK _LSBRAC _ID $@10 _RSBRAC . _LBRACKET $@11 whenPart otherwise _RBRACKET
 
     _LBRACKET  shift, and go to state 147
 
 
-State 140
-
-   68 num_exp: num_exp . $@16 _AROP exp
-   92 rel_exp: num_exp _RELOP num_exp .
-
-    _RPAREN   reduce using rule 92 (rel_exp)
-    $default  reduce using rule 67 ($@16)
-
-    $@16  go to state 104
-
-
 State 141
 
-   91 if_part: _IF _LPAREN @19 rel_exp $@20 _RPAREN . statement
+   93 if_part: _IF _LPAREN @21 rel_exp $@22 _RPAREN . statement
 
     _IF        shift, and go to state 43
     _RETURN    shift, and go to state 44
@@ -1664,21 +1666,30 @@ State 141
 
 State 142
 
-   77 exp: _LPAREN exp _RELOP exp _RPAREN . _QMARK exp _COLON exp
+   79 exp: _LPAREN rel_exp _RPAREN _QMARK $@17 . exp $@18 _COLON exp
 
-    _QMARK  shift, and go to state 149
+    _ID           shift, and go to state 69
+    _INT_NUMBER   shift, and go to state 70
+    _UINT_NUMBER  shift, and go to state 71
+    _LPAREN       shift, and go to state 72
+    _INC_OP       shift, and go to state 74
+    _DEC_OP       shift, and go to state 75
+
+    exp            go to state 149
+    literal        go to state 78
+    function_call  go to state 79
 
 
 State 143
 
-   82 function_call: _ID $@17 _LPAREN $@18 argument _RPAREN .
+   84 function_call: _ID $@19 _LPAREN $@20 argument _RPAREN .
 
-    $default  reduce using rule 82 (function_call)
+    $default  reduce using rule 84 (function_call)
 
 
 State 144
 
-   86 has_args: has_args _COMMA . num_exp
+   88 has_args: has_args _COMMA . num_exp
 
     _ID           shift, and go to state 69
     _INT_NUMBER   shift, and go to state 70
@@ -1695,7 +1706,7 @@ State 144
 
 State 145
 
-   95 select_statement: _SELECT arg_select _FROM _ID _WHERE _LPAREN . rel_exp _RPAREN _SEMICOLON
+   97 select_statement: _SELECT arg_select _FROM _ID _WHERE _LPAREN . rel_exp _RPAREN _SEMICOLON
 
     _ID           shift, and go to state 69
     _INT_NUMBER   shift, and go to state 70
@@ -1729,41 +1740,34 @@ State 147
 
 State 148
 
-   91 if_part: _IF _LPAREN @19 rel_exp $@20 _RPAREN statement .
+   93 if_part: _IF _LPAREN @21 rel_exp $@22 _RPAREN statement .
 
-    $default  reduce using rule 91 (if_part)
+    $default  reduce using rule 93 (if_part)
 
 
 State 149
 
-   77 exp: _LPAREN exp _RELOP exp _RPAREN _QMARK . exp _COLON exp
+   79 exp: _LPAREN rel_exp _RPAREN _QMARK $@17 exp . $@18 _COLON exp
 
-    _ID           shift, and go to state 69
-    _INT_NUMBER   shift, and go to state 70
-    _UINT_NUMBER  shift, and go to state 71
-    _LPAREN       shift, and go to state 72
-    _INC_OP       shift, and go to state 74
-    _DEC_OP       shift, and go to state 75
+    $default  reduce using rule 78 ($@18)
 
-    exp            go to state 154
-    literal        go to state 78
-    function_call  go to state 79
+    $@18  go to state 154
 
 
 State 150
 
    68 num_exp: num_exp . $@16 _AROP exp
-   86 has_args: has_args _COMMA num_exp .
+   88 has_args: has_args _COMMA num_exp .
 
     _AROP     reduce using rule 67 ($@16)
-    $default  reduce using rule 86 (has_args)
+    $default  reduce using rule 88 (has_args)
 
     $@16  go to state 104
 
 
 State 151
 
-   95 select_statement: _SELECT arg_select _FROM _ID _WHERE _LPAREN rel_exp . _RPAREN _SEMICOLON
+   97 select_statement: _SELECT arg_select _FROM _ID _WHERE _LPAREN rel_exp . _RPAREN _SEMICOLON
 
     _RPAREN  shift, and go to state 155
 
@@ -1790,14 +1794,14 @@ State 153
 
 State 154
 
-   77 exp: _LPAREN exp _RELOP exp _RPAREN _QMARK exp . _COLON exp
+   79 exp: _LPAREN rel_exp _RPAREN _QMARK $@17 exp $@18 . _COLON exp
 
     _COLON  shift, and go to state 160
 
 
 State 155
 
-   95 select_statement: _SELECT arg_select _FROM _ID _WHERE _LPAREN rel_exp _RPAREN . _SEMICOLON
+   97 select_statement: _SELECT arg_select _FROM _ID _WHERE _LPAREN rel_exp _RPAREN . _SEMICOLON
 
     _SEMICOLON  shift, and go to state 161
 
@@ -1846,7 +1850,7 @@ State 159
 
 State 160
 
-   77 exp: _LPAREN exp _RELOP exp _RPAREN _QMARK exp _COLON . exp
+   79 exp: _LPAREN rel_exp _RPAREN _QMARK $@17 exp $@18 _COLON . exp
 
     _ID           shift, and go to state 69
     _INT_NUMBER   shift, and go to state 70
@@ -1862,9 +1866,9 @@ State 160
 
 State 161
 
-   95 select_statement: _SELECT arg_select _FROM _ID _WHERE _LPAREN rel_exp _RPAREN _SEMICOLON .
+   97 select_statement: _SELECT arg_select _FROM _ID _WHERE _LPAREN rel_exp _RPAREN _SEMICOLON .
 
-    $default  reduce using rule 95 (select_statement)
+    $default  reduce using rule 97 (select_statement)
 
 
 State 162
@@ -1926,9 +1930,9 @@ State 168
 
 State 169
 
-   77 exp: _LPAREN exp _RELOP exp _RPAREN _QMARK exp _COLON exp .
+   79 exp: _LPAREN rel_exp _RPAREN _QMARK $@17 exp $@18 _COLON exp .
 
-    $default  reduce using rule 77 (exp)
+    $default  reduce using rule 79 (exp)
 
 
 State 170

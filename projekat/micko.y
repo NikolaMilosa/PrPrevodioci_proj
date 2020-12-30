@@ -26,6 +26,8 @@
 	int temp_var = NO_TYPE;
 	int param_count = 0;
 	int arg_count = 0;
+	
+	int helper = 0;
 
 	int cur_fun_ret_t;     //Povratni tip funkcije
 	int cur_fun_returned;  //Proverava da li je funkcija vratila vrednost
@@ -1038,29 +1040,33 @@ exp
 	  	
 	  	$$ = idx;
   	}
-  | _LPAREN exp _RELOP exp _RPAREN _QMARK exp _COLON exp
+  | _LPAREN rel_exp _RPAREN _QMARK 
   	{
-  		$$ = take_reg();
-  		set_type($$,get_type($7));
-  		
-  		if(get_type($2) != get_type($4))
-  			err("compared expressions aren't of the same type");
-  		if(get_type($7) != get_type($9))
-  			err("assigning expressions aren't of the same type");
-  			
   		code("\n@usl_izr_begin%d:", ++lab_usl_num);
-  		gen_cmp($2,$4);
   		
-  		int help = $3 + (get_type($2) - 1)*RELOP_NUMBER;
-  		code("\n\t\t%s\t@usl_izr_true%d",jumps[help], lab_usl_num);
-  		code("\n@usl_izr_false%d:", lab_usl_num);
+  		int help = $2;
+  		code("\n\t\t%s\t@usl_izr_false%d",opp_jumps[help], lab_usl_num);
+  		code("\n@usl_izr_true%d:", lab_usl_num);
+  	} exp 
+  	{
+  		helper = take_reg();
+  		set_type(helper,get_type($6));
   		
-  		gen_mov($9,$$);
+  		gen_mov($6,helper);
   		code("\n\t\tJMP\t@usl_izr_end%d",lab_usl_num);
+  		code("\n\t\t@usl_izr_false%d:", lab_usl_num);
+  	} _COLON exp
+  	{
   		
-  		code("\n@usl_izr_true%d:",lab_usl_num);
-  		gen_mov($7,$$);
+  		if(get_type(helper) != get_type($9))
+  			err("assigning expressions aren't of the same type");
+  		
+  		
+  		gen_mov($9,helper);
+  		code("\n\t\tJMP\t@usl_izr_end%d",lab_usl_num);
   		code("\n@usl_izr_end%d:", lab_usl_num);
+  		
+  		$$ = helper;
   	}	
   ;
 
