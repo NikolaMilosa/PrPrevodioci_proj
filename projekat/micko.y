@@ -1049,25 +1049,35 @@ exp
   		code("\n\t\t%s\t@usl_izr_false%d",opp_jumps[help], lab_usl_num);
   		code("\n@usl_izr_true%d:", lab_usl_num);
   	} exp 
-  	{
-  		helper = take_reg();
-  		//set_type(helper,get_type($6));
+  	{ 	
+  		helper = take_reg();	
+  		printf("\nPrvi registar ime : %s, tip : %d", get_name($6), get_type($6));	
   		
+  		set_type(helper,get_type($6));
   		gen_mov($6,helper);
+  		
+  		printf("\nNakon prebacivanja u reg ime : %s, tip : %d\n", get_name(helper), get_type(helper));	
   		code("\n\t\tJMP\t@usl_izr_end%d",lab_usl_num);
   		code("\n\t\t@usl_izr_false%d:", lab_usl_num);
   	} _COLON exp
   	{
+  		printf("\nDrugi registar ime : %s, tip : %d", get_name($9), get_type($9));
   		
   		if(get_type(helper) != get_type($9))
   			err("assigning expressions aren't of the same type");
   		
   		
+ 		set_type(helper,get_type($9));
+  		
   		gen_mov($9,helper);
+  		
+  		printf("\nNakon prebacivanja u reg ime : %s, tip : %d\n", get_name(helper), get_type(helper));
+  		
   		code("\n\t\tJMP\t@usl_izr_end%d",lab_usl_num);
   		code("\n@usl_izr_end%d:", lab_usl_num);
   		
   		$$ = helper;
+  		printf("\nKonacni tip samog expa je : %d", get_type(helper));
   	}	
   ;
 
