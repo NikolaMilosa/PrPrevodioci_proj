@@ -1,5 +1,5 @@
 //Testiranje
-//RETURN: 8
+//RETURN: 3
 int main(){
 
 	int a,b,c;
@@ -12,7 +12,7 @@ int main(){
 	a = 2;
 	b = 3;
 	
-	a = 1 + (a <= b) ? (a + a) : (b + a) + (e < f) ? b : a;
+	a = 1 + (a <= b) ? (a + a) : (b + a); //+ (e < f) ? b : a;
 	
 	a = (a < (b+b+b)) ? a : b;
 	

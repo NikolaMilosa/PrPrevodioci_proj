@@ -28,6 +28,7 @@
 	int arg_count = 0;
 	
 	int helper = 0;
+	int helper_type = 0;
 
 	int cur_fun_ret_t;     //Povratni tip funkcije
 	int cur_fun_returned;  //Proverava da li je funkcija vratila vrednost
@@ -1050,7 +1051,7 @@ exp
   	} exp 
   	{
   		helper = take_reg();
-  		set_type(helper,get_type($6));
+  		//set_type(helper,get_type($6));
   		
   		gen_mov($6,helper);
   		code("\n\t\tJMP\t@usl_izr_end%d",lab_usl_num);
