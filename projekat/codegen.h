@@ -3,6 +3,8 @@
 
 #include "defs.h"
 
+//Moje funk:
+int get_frn();
 // funkcije za zauzimanje, oslobadjanje registra
 int  take_reg(void);
 void free_reg(void);

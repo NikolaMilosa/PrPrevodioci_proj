@@ -27,8 +27,9 @@
 	int param_count = 0;
 	int arg_count = 0;
 	
-	int helper = 0;
+	int helper = -1;
 	int helper_type = 0;
+	int num_exp_helper = 0;
 
 	int cur_fun_ret_t;     //Povratni tip funkcije
 	int cur_fun_returned;  //Proverava da li je funkcija vratila vrednost
@@ -864,51 +865,24 @@ num_exp
   		$$ = $1;		
   	}
 
-  | num_exp
-  	{
-  		
-  		if($1 == FUN_REG){
-  			saved_type = get_type($1);
-  			pushed_reg++;
-  			code("\n\tPUSH\t");
-  			gen_sym_name($1);
-  		}
-  		
-  	} _AROP exp
-	{
-	 	
-		int temp_reg;
-		if(pushed_reg != 0){
-			pushed_reg--;
-			temp_reg = take_reg();
-			set_type(temp_reg,saved_type);
-			code("\n\tPOP \t");
-			gen_sym_name(temp_reg);
-			$$ = FUN_REG;
-			was_a_fun = 1;
-		}
-		else{
-			temp_reg = $1;
-		}
-			
-		if(get_type(temp_reg) != get_type($4))
+  | num_exp _AROP exp
+	{			
+		if(get_type($1) != get_type($3))
 			err("invalid operands : arithmetic operation");
 			
 				
-		int t1 = get_type(temp_reg);
-		code("\n\t\t%s\t", ar_instructions[$3 + (t1 - 1) * AROP_NUMBER]);
-		gen_sym_name(temp_reg);
+		int t1 = get_type($1);
+		code("\n\t\t%s\t", ar_instructions[$2 + (t1 - 1) * AROP_NUMBER]);
+		gen_sym_name($1);
 		code(",");
-		gen_sym_name($4);
+		gen_sym_name($3);
 		code(",");
 		
-		free_if_reg(temp_reg);
-		free_if_reg($4);
+		free_if_reg($3);
+		free_if_reg($1);
 		
-		if(was_a_fun == 0)
-			$$ = take_reg();
-		else
-			was_a_fun = 0;
+		
+		$$ = take_reg();
 		gen_sym_name($$);
 		set_type($$, t1);
 		
@@ -931,7 +905,8 @@ exp
 	}
   | function_call
   	{
-  		$$ = FUN_REG;
+  		$$ = take_reg();
+  		gen_mov(FUN_REG,$$);
   	}
   | _LPAREN num_exp _RPAREN
 	{ $$ = $2; }
@@ -1048,36 +1023,33 @@ exp
   		int help = $2;
   		code("\n\t\t%s\t@usl_izr_false%d",opp_jumps[help], lab_usl_num);
   		code("\n@usl_izr_true%d:", lab_usl_num);
+  		helper = take_reg();
   	} exp 
-  	{ 	
-  		helper = take_reg();	
-  		printf("\nPrvi registar ime : %s, tip : %d", get_name($6), get_type($6));	
+  	{		
+  		helper_type = get_type($6);
+  			
   		
-  		set_type(helper,get_type($6));
   		gen_mov($6,helper);
+  		set_type(helper,helper_type);
   		
-  		printf("\nNakon prebacivanja u reg ime : %s, tip : %d\n", get_name(helper), get_type(helper));	
   		code("\n\t\tJMP\t@usl_izr_end%d",lab_usl_num);
   		code("\n\t\t@usl_izr_false%d:", lab_usl_num);
   	} _COLON exp
   	{
-  		printf("\nDrugi registar ime : %s, tip : %d", get_name($9), get_type($9));
   		
   		if(get_type(helper) != get_type($9))
   			err("assigning expressions aren't of the same type");
   		
   		
- 		set_type(helper,get_type($9));
-  		
   		gen_mov($9,helper);
-  		
-  		printf("\nNakon prebacivanja u reg ime : %s, tip : %d\n", get_name(helper), get_type(helper));
+
+  		set_type(helper,helper_type);
   		
   		code("\n\t\tJMP\t@usl_izr_end%d",lab_usl_num);
   		code("\n@usl_izr_end%d:", lab_usl_num);
-  		
+  	
   		$$ = helper;
-  		printf("\nKonacni tip samog expa je : %d", get_type(helper));
+  		helper = -1;
   	}	
   ;
 
@@ -1092,6 +1064,13 @@ function_call
 		fcall_idx = lookup_symbol($1, FUN);
 		if(fcall_idx == NO_INDEX)
 			err("'%s' is not a function", $1);
+		
+		//Treba pusovati sve registre koji se koriste :
+		if(get_frn() != 0){
+			int i = 0;
+			for(i; i < get_frn(); i++)
+				code("\n\t\tPUSH\t%%%d",i);
+		}
 	}
     _LPAREN {arg_count = 0;} argument _RPAREN
 	{
@@ -1102,6 +1081,13 @@ function_call
 		
 		if($5 > 0)
 			code("\n\t\tADDS\t%%15,$%d,%%15", ($5 * 4));
+		
+		//Ako se registri koriste treba ih popovati :
+		if(get_frn() != 0){
+			int i = get_frn() - 1;
+			for(i; i >= 0; i--)
+				code("\n\t\tPOP \t%%%d",i);
+		}
 		
 		set_type(FUN_REG, get_type(fcall_idx));
 		$$ = FUN_REG;

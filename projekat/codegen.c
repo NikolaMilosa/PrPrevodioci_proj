@@ -8,7 +8,10 @@
 extern FILE *output;
 int free_reg_num = 0;
 char invalid_value[] = "???";
-
+//Moje funk :
+int get_frn(){
+	return free_reg_num;
+}
 // REGISTERS
 
 int take_reg(void) {
