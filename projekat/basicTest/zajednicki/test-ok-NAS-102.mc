@@ -1,13 +1,11 @@
 //OPIS: vise funkcija, vise parametara
 //RETURN: 1
-unsigned a;
 unsigned main() {
     unsigned x,b,c;
 	x = 1u; 
-	a = 1u;
 	b = 2u;
 	c = x + b;
-	return a;
+	return x;
 }
 
 int inc(int p, unsigned q){
