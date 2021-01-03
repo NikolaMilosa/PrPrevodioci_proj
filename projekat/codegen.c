@@ -12,6 +12,103 @@ char invalid_value[] = "???";
 int get_frn(){
 	return free_reg_num;
 }
+
+//Funkcije za ugnjezdavanje check-whena :
+
+void InitListW(struct listW *sList){
+   	sList->start = NULL;
+};
+
+void pushW(struct listW *sList, int data, int ci, int tv){
+	struct whenNode *p;
+	p = malloc(sizeof(struct whenNode));
+	p->when_num = data;
+	p->compared_idx = ci;
+	p->temp_var = tv;
+	p->next = sList->start;
+	sList->start = p;
+};
+
+void popW(struct listW *sList){
+	if(sList->start != NULL) {
+	    struct whenNode *p = sList->start;
+	    sList->start = sList->start->next;
+	    free(p);
+	}
+};
+
+void InitListL(struct listL *sList){
+	sList->start = NULL;
+};
+
+void pushL(struct listL *sList, int layer, int check){
+	struct layerNode *p;
+	p = malloc(sizeof(struct layerNode));
+	p->layer = layer;
+	p->check_in_layer = check;
+	p->next = sList->start;
+	sList->start = p;
+};
+
+int findCheckInLayer(struct listL *sList, int lay){
+	int i = -1;
+	struct layerNode *curr = sList->start;
+	while(curr != NULL){
+		if(curr->layer == lay){
+			i = curr->check_in_layer;
+			break;
+		}
+		if(i != -1)
+			break;
+		curr = curr->next;
+	}
+	return i;
+};
+
+void clearLayerList(struct listL *sList){
+	struct layerNode *current = sList->start;
+	struct layerNode *next; 
+	while(current != NULL) {
+		next = current->next;
+		free(current);
+		current = next;
+	}
+};
+
+void setCheckInLayer(struct listL *sList, int lay, int che){
+	struct layerNode *curr = sList->start;
+	while(curr != NULL){
+		if(curr->layer == lay){
+			curr->check_in_layer = che;
+			break;
+		}
+		curr = curr->next;
+	}
+};
+
+void cleanLay(int lay){
+	int i = 0;
+	for(i; i < popunjenost[lay]; i++)
+		matrix[i][lay] = 0;
+	popunjenost[lay] = 0;
+};
+
+int checkInLay(int lay, int o){
+	int i = 0;
+	for(i; i < popunjenost[lay]; i++){
+		if(matrix[i][lay] == o)
+			return -1;
+	}
+	return 1;
+};
+
+void addInLay(int lay, int o){
+	if((popunjenost[lay] + 1) == SYMBOL_TABLE_LENGTH)
+		err("Maximum supported when's in a single check is : %d", SYMBOL_TABLE_LENGTH);
+	matrix[popunjenost[lay]][lay] = o;
+	popunjenost[lay]++;
+};
+
 // REGISTERS
 
 int take_reg(void) {
