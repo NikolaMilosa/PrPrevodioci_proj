@@ -740,23 +740,22 @@ num_exp
 	{			
 		if(get_type($1) != get_type($3))
 			err("invalid operands : arithmetic operation");
-			
-				
-		int t1 = get_type($1);
-		code("\n\t\t%s\t", ar_instructions[$2 + (t1 - 1) * AROP_NUMBER]);
-		gen_sym_name($1);
-		code(",");
-		gen_sym_name($3);
-		code(",");
+		else{		
+			int t1 = get_type($1);
+			code("\n\t\t%s\t", ar_instructions[$2 + (t1 - 1) * AROP_NUMBER]);
+			gen_sym_name($1);
+			code(",");
+			gen_sym_name($3);
+			code(",");
 		
-		free_if_reg($3);
-		free_if_reg($1);
+			free_if_reg($3);
+			free_if_reg($1);
 		
 		
-		$$ = take_reg();
-		gen_sym_name($$);
-		set_type($$, t1);
-		
+			$$ = take_reg();
+			gen_sym_name($$);
+			set_type($$, t1);
+		}
 	}
   ;
 
