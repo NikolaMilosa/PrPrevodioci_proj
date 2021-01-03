@@ -1083,7 +1083,7 @@ int main() {
 	clear_symtab();
 	fclose(output);
 	
-	//clearLayerList(&LayerList);
+	clearLayerList(&LayerList);
 
 	if(warning_count)
 		printf("\n%d warning(s).\n", warning_count);
