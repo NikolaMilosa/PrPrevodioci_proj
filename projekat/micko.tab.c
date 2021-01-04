@@ -537,7 +537,7 @@ static const yytype_uint16 yyrline[] =
      552,   611,   635,   659,   683,   710,   714,   734,   739,   763,
      767,   776,   781,   783,   811,   839,   864,   890,   898,   889,
      927,   928,   933,   945,   932,   968,   969,   973,   986,  1002,
-    1004,  1010,  1014,  1009,  1026,  1037,  1046,  1055,  1059,  1060
+    1004,  1010,  1014,  1009,  1026,  1038,  1047,  1056,  1060,  1061
 };
 #endif
 
@@ -2526,15 +2526,16 @@ yyreduce:
     {
 		if(get_type((yyvsp[-2].i)) != get_type((yyvsp[0].i)))
 			err("invalid operands : relational operator");
-			
-		(yyval.i) = (yyvsp[-1].i) + ((get_type((yyvsp[-2].i)) - 1)*RELOP_NUMBER);
-		gen_cmp((yyvsp[-2].i),(yyvsp[0].i));
+		else{	
+			(yyval.i) = (yyvsp[-1].i) + ((get_type((yyvsp[-2].i)) - 1)*RELOP_NUMBER);
+			gen_cmp((yyvsp[-2].i),(yyvsp[0].i));
+		}
 	}
-#line 2534 "micko.tab.c" /* yacc.c:1646  */
+#line 2535 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 95:
-#line 1038 "micko.y" /* yacc.c:1646  */
+#line 1039 "micko.y" /* yacc.c:1646  */
     {
 		cur_fun_returned = 1;
 		if(get_type(fun_idx) != get_type((yyvsp[-1].i)))
@@ -2543,21 +2544,21 @@ yyreduce:
 		gen_mov((yyvsp[-1].i),FUN_REG);
 		code("\n\t\tJMP \t@%s_exit",get_name(fun_idx));
 	}
-#line 2547 "micko.tab.c" /* yacc.c:1646  */
+#line 2548 "micko.tab.c" /* yacc.c:1646  */
     break;
 
   case 96:
-#line 1047 "micko.y" /* yacc.c:1646  */
+#line 1048 "micko.y" /* yacc.c:1646  */
     {
 		cur_fun_returned = 1;
 		if(get_type(fun_idx) != VOID)
 			warn("Function '%s' expected a return value", get_name(fun_idx));
 	}
-#line 2557 "micko.tab.c" /* yacc.c:1646  */
+#line 2558 "micko.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 2561 "micko.tab.c" /* yacc.c:1646  */
+#line 2562 "micko.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2785,7 +2786,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 1063 "micko.y" /* yacc.c:1906  */
+#line 1064 "micko.y" /* yacc.c:1906  */
 
 
 int yyerror(char *s) {

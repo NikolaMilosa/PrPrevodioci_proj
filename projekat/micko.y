@@ -1027,9 +1027,10 @@ rel_exp
 	{
 		if(get_type($1) != get_type($3))
 			err("invalid operands : relational operator");
-			
-		$$ = $2 + ((get_type($1) - 1)*RELOP_NUMBER);
-		gen_cmp($1,$3);
+		else{	
+			$$ = $2 + ((get_type($1) - 1)*RELOP_NUMBER);
+			gen_cmp($1,$3);
+		}
 	}
   ;
 
