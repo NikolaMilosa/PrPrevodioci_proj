@@ -2,3 +2,7 @@
 - Omogućena upotreba i prefiksnih operatora za inc i dec
 - deklaracija funkcije (kada je atr2 = 1, nije definisano telo)
 - ako nije dodeljena vrednost promenljivoj staviti na 0
+- ugnjezdavanje check whena do nivoa velicine tabele simbola
+- omogucena upotreba svih num_exp prilikom inicijalizacije promenljivih
+- omogucena inicijalizacija promenljivih posle bilo kog zareza (ako je poslednji u nizu onda svi dobijaju tu vrednost)
+- kod ternarnog operatora omogucena upotreba kompleksnih iskaza
